@@ -1,0 +1,4 @@
+nextcord
+websockets
+requests
+python-dotenv
