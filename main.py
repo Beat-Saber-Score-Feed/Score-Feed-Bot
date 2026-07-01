@@ -47,17 +47,6 @@ async def listener():
 
                             for guild in GUILD_DATA["guilds"]:
                                 guild_data = GUILD_DATA["guilds"][guild]
-                                filter_lists = guild_data.get("filter_lists", {})
-                                bl_id_allowlist = filter_lists.get("bl_id_allowlist", {})
-                                bl_id_blocklist = filter_lists.get("bl_id_blocklist", {})
-
-                                if bl_id_allowlist.get("enabled", False):
-                                    if parsed_data["player_id"] not in bl_id_allowlist["items"]:
-                                        continue
-
-                                if bl_id_blocklist.get("enabled", False):
-                                    if parsed_data["player_id"] in bl_id_blocklist["items"]:
-                                        continue
 
                                 channels = GUILD_DATA["guilds"][guild].get("channels", {})
                                 for channel_id in channels:
@@ -70,6 +59,18 @@ async def listener():
 
                                     if not channel_data["enabled"]:
                                         continue
+
+                                    filter_lists = channel_data.get("filter_lists", {})
+                                    allowlist = filter_lists.get("allowlist", {})
+                                    blocklist = filter_lists.get("blocklist", {})
+
+                                    if allowlist.get("enabled", False):
+                                        if parsed_data["player_id"] not in allowlist.get("players", []):
+                                            continue
+
+                                    if blocklist.get("enabled", False):
+                                        if parsed_data["player_id"] in blocklist.get("players", []):
+                                            continue
 
                                     all_leaderboard_settings = channel_data.get("leaderboard_settings", {})
 
@@ -89,7 +90,7 @@ async def listener():
                                         view = embed_builder.build_view(parsed_data, leaderboard)
                                         send_tasks.append(channel.send(embed=embed, view=view))
 
-                            await asyncio.gather(*send_tasks)
+                            await asyncio.gather(*send_tasks, return_exceptions=True)
 
                             logger.log(f"Posted {parsed_data['ss_pp']}pp score by {parsed_data['name']} on {parsed_data['song_name']} {parsed_data['extended_difficulty_name']}")
 
@@ -108,7 +109,7 @@ def check_perms(user, guild_id):
         return True
 
     user_roles = {role.id for role in user.roles}
-    allowed_roles = GUILD_DATA["guilds"][guild_id].get("admin_role_ids", [])
+    allowed_roles = GUILD_DATA["guilds"][guild_id].get("admin_roles", [])
 
     return bool(user_roles & set(allowed_roles))
 
@@ -118,7 +119,7 @@ async def enable_channel(interaction: nextcord.Interaction):
     channel_id = str(interaction.channel.id)
 
     if not check_perms(interaction.user, guild_id):
-        return await interaction.response.send_message("You are not allowed to use this command!",ephermeral=True)
+        return await interaction.response.send_message("You are not allowed to use this command!",ephemeral=True)
 
     guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
     channels = guild_data.setdefault("channels", {})
@@ -136,7 +137,7 @@ async def disable_channel(interaction: nextcord.Interaction):
     channel_id = str(interaction.channel.id)
 
     if not check_perms(interaction.user, guild_id):
-        return await interaction.response.send_message("You are not allowed to use this command!",ephermeral = True)
+        return await interaction.response.send_message("You are not allowed to use this command!",ephemeral = True)
 
     guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
     channels = guild_data.setdefault("channels", {})
@@ -148,83 +149,218 @@ async def disable_channel(interaction: nextcord.Interaction):
 
     return await interaction.response.send_message("Score Feed is now disabled in this channel.", ephemeral=True)
 
-@bot.slash_command(name="filter_list_settings")
-async def filter_list_settings(
+@bot.slash_command(name="enable_allowlist")
+async def enable_allowlist(
         interaction: nextcord.Interaction,
-        filter_list: str = nextcord.SlashOption(
-            choices=FILTER_LISTS,
-        ),
-        filter_list_enabled: bool = nextcord.SlashOption(
-            choices={
-                "True": True,
-                "False": False
-            },
-        )
 ):
     guild_id = str(interaction.guild.id)
+    channel_id = str(interaction.channel.id)
 
     if not check_perms(interaction.user, guild_id):
-        return await interaction.response.send_message("You are not allowed to use this command!", ephermeral = True)
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral = True)
 
     guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    filter_lists = guild_data.setdefault("filter_lists", {})
-    filter_list = filter_lists.setdefault(filter_list, {})
-    filter_list["enabled"] = filter_list_enabled
+    channels = guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    filter_lists = channel_data.setdefault("filter_lists", {})
+    allowlist = filter_lists.setdefault("allowlist", {})
+
+    allowlist["enabled"] = True
 
     save_data.save_data(GUILD_DATA, "bot_data/guild_data.json")
 
-    return await interaction.response.send_message("Updated filter list settings successfully.", ephemeral=True)
+    return await interaction.response.send_message("Enabled allowlist successfully.", ephemeral=True)
 
-@bot.slash_command(name="edit_filter_list")
-async def edit_filter_list(
+@bot.slash_command(name="disable_allowlist")
+async def disable_allowlist(
         interaction: nextcord.Interaction,
-        filter_list: str = nextcord.SlashOption(
-            choices=FILTER_LISTS
-        ),
-        operation: str = nextcord.SlashOption(
-            choices = {
-                "Add Value": "add_value",
-                "Remove Value": "remove_value"
-            }
-        ),
-        value = nextcord.SlashOption(
-            required=True
-        )
 ):
     guild_id = str(interaction.guild.id)
+    channel_id = str(interaction.channel.id)
 
     if not check_perms(interaction.user, guild_id):
-        return await interaction.response.send_message("You are not allowed to use this command!", ephermeral=True)
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral = True)
 
     guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    filter_lists = guild_data.setdefault("filter_lists", {})
-    filter_list = filter_lists.setdefault(filter_list, {})
-    filter_list_items = filter_list.setdefault("items", [])
+    channels = guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    filter_lists = channel_data.setdefault("filter_lists", {})
+    allowlist = filter_lists.setdefault("allowlist", {})
 
-    filter_list_enabled = filter_list.get("enabled")
-
-    if operation == "add_value":
-        if filter_list_enabled is None:
-            filter_list["enabled"] = True
-        if value in filter_list_items:
-            return await interaction.response.send_message("This item is already in this filter list!", ephemeral=True)
-        filter_list_items.append(value)
-
-    if operation == "remove_value":
-        if value not in filter_list_items:
-            return await interaction.response.send_message("This item is already not in this filter list!", ephemeral=True)
-        filter_list_items.remove(value)
+    allowlist["enabled"] = False
 
     save_data.save_data(GUILD_DATA, "bot_data/guild_data.json")
 
-    return await interaction.response.send_message(f"Edited {filter_list} successfully.", ephemeral=True)
+    return await interaction.response.send_message("Disabled allowlist successfully.", ephemeral=True)
+
+
+@bot.slash_command(name="enable_blocklist")
+async def enable_blocklist(
+        interaction: nextcord.Interaction,
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str(interaction.channel.id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
+    channels = guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    filter_lists = channel_data.setdefault("filter_lists", {})
+    blocklist = filter_lists.setdefault("blocklist", {})
+
+    blocklist["enabled"] = True
+
+    save_data.save_data(GUILD_DATA, "bot_data/guild_data.json")
+
+    return await interaction.response.send_message("Enabled blocklist successfully.", ephemeral=True)
+
+
+@bot.slash_command(name="disable_blocklist")
+async def disable_blocklist(
+        interaction: nextcord.Interaction,
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str(interaction.channel.id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
+    channels = guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    filter_lists = channel_data.setdefault("filter_lists", {})
+    blocklist = filter_lists.setdefault("blocklist", {})
+
+    blocklist["enabled"] = False
+
+    save_data.save_data(GUILD_DATA, "bot_data/guild_data.json")
+
+    return await interaction.response.send_message("Disabled blocklist successfully.", ephemeral=True)
+
+@bot.slash_command(name="allowlist_add")
+async def allowlist_add(
+        interaction: nextcord.Interaction,
+        bl_id
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str(interaction.channel.id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
+    channels = guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    filter_lists = channel_data.setdefault("filter_lists", {})
+    allowlist = filter_lists.setdefault("allowlist", {})
+    allowlist_players = allowlist.setdefault("players", [])
+
+    allowlist_enabled = allowlist.get("enabled")
+
+    if allowlist_enabled is None:
+        allowlist["enabled"] = True
+
+    if bl_id in allowlist_players:
+        return await interaction.response.send_message("This item is already in this filter list!", ephemeral=True)
+    allowlist_players.append(bl_id)
+
+    save_data.save_data(GUILD_DATA, "bot_data/guild_data.json")
+
+    return await interaction.response.send_message(f"Added player to allowlist successfully!", ephemeral=True)
+
+
+@bot.slash_command(name="allowlist_remove")
+async def allowlist_remove(
+        interaction: nextcord.Interaction,
+        bl_id
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str(interaction.channel.id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
+    channels = guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    filter_lists = channel_data.setdefault("filter_lists", {})
+    allowlist = filter_lists.setdefault("allowlist", {})
+    allowlist_players = allowlist.setdefault("players", [])
+
+    if bl_id not in allowlist_players:
+        return await interaction.response.send_message("This player is already not in the allowlist!", ephemeral=True)
+    allowlist_players.remove(bl_id)
+
+    save_data.save_data(GUILD_DATA, "bot_data/guild_data.json")
+
+    return await interaction.response.send_message(f"Removed player from allowlist successfully!", ephemeral=True)
+
+@bot.slash_command(name="blocklist_add")
+async def blocklist_add(
+        interaction: nextcord.Interaction,
+        bl_id
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str(interaction.channel.id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
+    channels = guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    filter_lists = channel_data.setdefault("filter_lists", {})
+    blocklist = filter_lists.setdefault("blocklist", {})
+    blocklist_players = blocklist.setdefault("players", [])
+
+    allowlist_enabled = blocklist.get("enabled")
+
+    if allowlist_enabled is None:
+        blocklist["enabled"] = True
+
+    if bl_id in blocklist_players:
+        return await interaction.response.send_message("This item is already in this filter list!", ephemeral=True)
+    blocklist_players.append(bl_id)
+
+    save_data.save_data(GUILD_DATA, "bot_data/guild_data.json")
+
+    return await interaction.response.send_message(f"Added player to allowlist successfully!", ephemeral=True)
+
+
+@bot.slash_command(name="blocklist_remove")
+async def blocklist_remove(
+        interaction: nextcord.Interaction,
+        bl_id
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str(interaction.channel.id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
+    channels = guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    filter_lists = channel_data.setdefault("filter_lists", {})
+    blocklist = filter_lists.setdefault("blocklist", {})
+    blocklist_players = blocklist.setdefault("players", [])
+
+    if bl_id not in blocklist_players:
+        return await interaction.response.send_message("This player is already not in the allowlist!", ephemeral=True)
+    blocklist_players.remove(bl_id)
+
+    save_data.save_data(GUILD_DATA, "bot_data/guild_data.json")
+
+    return await interaction.response.send_message(f"Removed player from allowlist successfully!", ephemeral=True)
 
 @bot.slash_command(name="add_admin_role")
 async def add_admin_role(interaction: nextcord.Interaction, role: nextcord.Role):
     guild_id = str(interaction.guild.id)
 
     if not check_perms(interaction.user, guild_id):
-        return await interaction.response.send_message("You are not allowed to use this command!", ephermeral=True)
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
     guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
     admin_roles = guild_data.setdefault("admin_roles", [])
@@ -244,7 +380,7 @@ async def add_admin_role(interaction: nextcord.Interaction, role: nextcord.Role)
     guild_id = str(interaction.guild.id)
 
     if not check_perms(interaction.user, guild_id):
-        return await interaction.response.send_message("You are not allowed to use this command!", ephermeral=True)
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
     guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
     admin_roles = guild_data.setdefault("admin_roles", [])
