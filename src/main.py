@@ -9,7 +9,7 @@ import traceback
 from nextcord.ext import commands, tasks
 from dotenv import load_dotenv
 
-from utils import logger, score_parser, embed_builder, save_data
+from src.utils import logger, score_parser, embed_builder, save_data
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
