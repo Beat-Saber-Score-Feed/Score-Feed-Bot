@@ -126,7 +126,7 @@ async def enable_channel(interaction: nextcord.Interaction):
 
     channel_data["enabled"] = True
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message("Score Feed is now enabled in this channel!", ephemeral = True)
 
@@ -144,7 +144,7 @@ async def disable_channel(interaction: nextcord.Interaction):
 
     channel_data["enabled"] = False
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message("Score Feed is now disabled in this channel.", ephemeral=True)
 
@@ -166,7 +166,7 @@ async def enable_allowlist(
 
     allowlist["enabled"] = True
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message("Enabled allowlist successfully.", ephemeral=True)
 
@@ -188,7 +188,7 @@ async def disable_allowlist(
 
     allowlist["enabled"] = False
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message("Disabled allowlist successfully.", ephemeral=True)
 
@@ -211,7 +211,7 @@ async def enable_blocklist(
 
     blocklist["enabled"] = True
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message("Enabled blocklist successfully.", ephemeral=True)
 
@@ -234,7 +234,7 @@ async def disable_blocklist(
 
     blocklist["enabled"] = False
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message("Disabled blocklist successfully.", ephemeral=True)
 
@@ -265,7 +265,7 @@ async def allowlist_add(
         return await interaction.response.send_message("This item is already in this filter list!", ephemeral=True)
     allowlist_players.append(bl_id)
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message(f"Added player to allowlist successfully!", ephemeral=True)
 
@@ -292,7 +292,7 @@ async def allowlist_remove(
         return await interaction.response.send_message("This player is already not in the allowlist!", ephemeral=True)
     allowlist_players.remove(bl_id)
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message(f"Removed player from allowlist successfully!", ephemeral=True)
 
@@ -323,7 +323,7 @@ async def blocklist_add(
         return await interaction.response.send_message("This item is already in this filter list!", ephemeral=True)
     blocklist_players.append(bl_id)
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message(f"Added player to allowlist successfully!", ephemeral=True)
 
@@ -350,7 +350,7 @@ async def blocklist_remove(
         return await interaction.response.send_message("This player is already not in the allowlist!", ephemeral=True)
     blocklist_players.remove(bl_id)
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message(f"Removed player from allowlist successfully!", ephemeral=True)
 
@@ -369,7 +369,7 @@ async def add_admin_role(interaction: nextcord.Interaction, role: nextcord.Role)
 
     admin_roles.append(role.id)
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message("Admin role added successfully!", ephemeral=True)
 
@@ -389,7 +389,7 @@ async def add_admin_role(interaction: nextcord.Interaction, role: nextcord.Role)
 
     admin_roles.remove(role.id)
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message("Admin role removed successfully!", ephemeral=True)
 
@@ -438,7 +438,7 @@ async def lb_settings(
         else:
             leaderboard_settings["rank_threshold"] = rank_threshold
 
-    save_data.save_data(GUILD_DATA, "../bot_data/guild_data.json")
+    save_data.save_data(GUILD_DATA, guild_data_path)
 
     return await interaction.response.send_message(f"Updated channel's {leaderboard} settings successfully!", ephemeral=True)
 
