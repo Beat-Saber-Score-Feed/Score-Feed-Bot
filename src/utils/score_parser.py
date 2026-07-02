@@ -1,3 +1,5 @@
+import json
+
 import requests
 import nextcord
 from src.utils import accsaber, scoresaber
@@ -27,10 +29,15 @@ def parse_score(score_data):
         "rank": score_data["rank"],
         "max_combo": score_data["maxCombo"],
         "bl_pp": round(score_data["pp"], 2),
-        "bl_stars": score_data["leaderboard"]["difficulty"].get("stars") or 0,
+        "bl_stars": round(score_data["leaderboard"]["difficulty"].get("stars"), 2) or 0,
     }
 
-    ss_map_data = requests.get(f"https://scoresaber.com/api/v2/leaderboards/hash/{bl_converted_data['hash']}/{bl_converted_data['extended_mode']}/{bl_converted_data['difficulty_number']}",params={"realmId": "1"}).json()
+    ss_resp = requests.get(f"https://scoresaber.com/api/v2/leaderboards/hash/{bl_converted_data['hash']}/{bl_converted_data['extended_mode']}/{bl_converted_data['difficulty_number']}",params={"realmId": "1"})
+
+    try:
+        ss_map_data = ss_resp.json()
+    except json.decoder.JSONDecodeError:
+        ss_map_data = {}
 
     ss_map = ss_map_data.get("map", {})
     realm = ss_map_data.get("realm", {})
@@ -44,7 +51,11 @@ def parse_score(score_data):
         "ss_difficulty_id": ss_difficulty.get("id"),
     }
 
-    accsaber_map_data = requests.get(f"https://api.accsaberreloaded.com/v1/maps/hash/{bl_converted_data['hash']}?difficulty={accsaber.convert_difficulty(bl_converted_data['difficulty_number'])}").json()
+    accsaber_resp = requests.get(f"https://api.accsaberreloaded.com/v1/maps/hash/{bl_converted_data['hash']}?difficulty={accsaber.convert_difficulty(bl_converted_data['difficulty_number'])}")
+    try:
+        accsaber_map_data = accsaber_resp.json()
+    except json.decoder.JSONDecodeError:
+        accsaber_map_data = {}
 
     difficulties = accsaber_map_data.get("difficulties", [])
 
