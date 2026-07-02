@@ -17,11 +17,15 @@ token = os.getenv("DISCORD_TOKEN")
 bot = commands.Bot(command_prefix="!", intents=nextcord.Intents.all())
 bot_instance = bot
 
-GUILD_DATA = save_data.load_data("../bot_data/guild_data.json")
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+guild_data_path = os.path.join(PROJECT_ROOT, "bot_data", "guild_data.json")
+user_data_path = os.path.join(PROJECT_ROOT, "bot_data", "user_data.json")
+
+GUILD_DATA = save_data.load_data(guild_data_path)
 if "guilds" not in GUILD_DATA:
     GUILD_DATA["guilds"] = {}
 
-USER_DATA = save_data.load_data("bot_data/user_data.json")
+USER_DATA = save_data.load_data(user_data_path)
 if "users" not in USER_DATA:
     USER_DATA["users"] = {}
 
