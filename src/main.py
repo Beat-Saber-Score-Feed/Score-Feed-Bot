@@ -29,11 +29,6 @@ USER_DATA = save_data.load_data(user_data_path)
 if "users" not in USER_DATA:
     USER_DATA["users"] = {}
 
-FILTER_LISTS = {
-    "BL ID Allowlist": "bl_id_allowlist",
-    "BL ID Blocklist": "bl_id_blocklist"
-}
-
 @tasks.loop(seconds=0)
 async def listener():
     logger.log("Connecting to the BeatLeader WSS...")
