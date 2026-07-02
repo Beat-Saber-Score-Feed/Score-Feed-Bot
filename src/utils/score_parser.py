@@ -27,7 +27,7 @@ def parse_score(score_data):
         "rank": score_data["rank"],
         "max_combo": score_data["maxCombo"],
         "bl_pp": round(score_data["pp"], 2),
-        "bl_stars": round(score_data["leaderboard"]["difficulty"].get("stars"), 2) or 0,
+        "bl_stars": round(score_data["leaderboard"]["difficulty"].get("stars") or 0, 2)
     }
 
     ss_map_data = requests.get(f"https://scoresaber.com/api/v2/leaderboards/hash/{bl_converted_data['hash']}/{bl_converted_data['extended_mode']}/{bl_converted_data['difficulty_number']}",params={"realmId": "1"}).json()
