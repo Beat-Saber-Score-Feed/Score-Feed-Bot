@@ -37,14 +37,14 @@ async def listener():
                             for guild in guild_data["guilds"]:
                                 current_guild_data = guild_data["guilds"][guild]
 
-                                channels = current_guild_data["guilds"][guild].get("channels", {})
+                                channels = current_guild_data.get("channels", {})
                                 for channel_id in channels:
                                     channel = bot.get_channel(int(channel_id))
 
                                     if not channel:
                                         continue
 
-                                    channel_data = guild_data["guilds"][guild]["channels"][channel_id]
+                                    channel_data = current_guild_data["channels"][channel_id]
 
                                     if not channel_data["enabled"]:
                                         continue
