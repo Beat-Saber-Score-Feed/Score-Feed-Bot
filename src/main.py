@@ -9,25 +9,13 @@ import traceback
 from nextcord.ext import commands, tasks
 from dotenv import load_dotenv
 
-from src.utils import logger, score_parser, embed_builder, save_data
+from src.utils import logger, score_parser, embed_builder, save_data, data_manager
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
 
 bot = commands.Bot(command_prefix="!", intents=nextcord.Intents.all())
 bot_instance = bot
-
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-guild_data_path = os.path.join(PROJECT_ROOT, "bot_data", "guild_data.json")
-user_data_path = os.path.join(PROJECT_ROOT, "bot_data", "user_data.json")
-
-GUILD_DATA = save_data.load_data(guild_data_path)
-if "guilds" not in GUILD_DATA:
-    GUILD_DATA["guilds"] = {}
-
-USER_DATA = save_data.load_data(user_data_path)
-if "users" not in USER_DATA:
-    USER_DATA["users"] = {}
 
 @tasks.loop(seconds=0)
 async def listener():
@@ -44,17 +32,19 @@ async def listener():
                         if parsed_data:
                             send_tasks = []
 
-                            for guild in GUILD_DATA["guilds"]:
-                                guild_data = GUILD_DATA["guilds"][guild]
+                            guild_data = data_manager.get_guild_data()
 
-                                channels = GUILD_DATA["guilds"][guild].get("channels", {})
+                            for guild in guild_data["guilds"]:
+                                current_guild_data = guild_data["guilds"][guild]
+
+                                channels = current_guild_data["guilds"][guild].get("channels", {})
                                 for channel_id in channels:
                                     channel = bot.get_channel(int(channel_id))
 
                                     if not channel:
                                         continue
 
-                                    channel_data = GUILD_DATA["guilds"][guild]["channels"][channel_id]
+                                    channel_data = guild_data["guilds"][guild]["channels"][channel_id]
 
                                     if not channel_data["enabled"]:
                                         continue
@@ -107,8 +97,10 @@ def check_perms(user, guild_id):
     if user.guild_permissions.administrator:
         return True
 
+    guild_data = data_manager.get_guild_data()
+
     user_roles = {role.id for role in user.roles}
-    allowed_roles = GUILD_DATA["guilds"][guild_id].get("admin_roles", [])
+    allowed_roles = guild_data["guilds"][guild_id].get("admin_roles", [])
 
     return bool(user_roles & set(allowed_roles))
 
@@ -120,13 +112,15 @@ async def enable_channel(interaction: nextcord.Interaction):
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!",ephemeral=True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
 
     channel_data["enabled"] = True
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message("Score Feed is now enabled in this channel!", ephemeral = True)
 
@@ -138,13 +132,15 @@ async def disable_channel(interaction: nextcord.Interaction):
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!",ephemeral = True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
 
     channel_data["enabled"] = False
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message("Score Feed is now disabled in this channel.", ephemeral=True)
 
@@ -158,15 +154,17 @@ async def enable_allowlist(
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral = True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
     filter_lists = channel_data.setdefault("filter_lists", {})
     allowlist = filter_lists.setdefault("allowlist", {})
 
     allowlist["enabled"] = True
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message("Enabled allowlist successfully.", ephemeral=True)
 
@@ -180,15 +178,17 @@ async def disable_allowlist(
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral = True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
     filter_lists = channel_data.setdefault("filter_lists", {})
     allowlist = filter_lists.setdefault("allowlist", {})
 
     allowlist["enabled"] = False
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message("Disabled allowlist successfully.", ephemeral=True)
 
@@ -203,15 +203,17 @@ async def enable_blocklist(
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
     filter_lists = channel_data.setdefault("filter_lists", {})
     blocklist = filter_lists.setdefault("blocklist", {})
 
     blocklist["enabled"] = True
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message("Enabled blocklist successfully.", ephemeral=True)
 
@@ -226,15 +228,17 @@ async def disable_blocklist(
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
     filter_lists = channel_data.setdefault("filter_lists", {})
     blocklist = filter_lists.setdefault("blocklist", {})
 
     blocklist["enabled"] = False
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message("Disabled blocklist successfully.", ephemeral=True)
 
@@ -249,8 +253,10 @@ async def allowlist_add(
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
     filter_lists = channel_data.setdefault("filter_lists", {})
     allowlist = filter_lists.setdefault("allowlist", {})
@@ -265,7 +271,7 @@ async def allowlist_add(
         return await interaction.response.send_message("This item is already in this filter list!", ephemeral=True)
     allowlist_players.append(bl_id)
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message(f"Added player to allowlist successfully!", ephemeral=True)
 
@@ -281,8 +287,10 @@ async def allowlist_remove(
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
     filter_lists = channel_data.setdefault("filter_lists", {})
     allowlist = filter_lists.setdefault("allowlist", {})
@@ -292,7 +300,7 @@ async def allowlist_remove(
         return await interaction.response.send_message("This player is already not in the allowlist!", ephemeral=True)
     allowlist_players.remove(bl_id)
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message(f"Removed player from allowlist successfully!", ephemeral=True)
 
@@ -307,8 +315,10 @@ async def blocklist_add(
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
     filter_lists = channel_data.setdefault("filter_lists", {})
     blocklist = filter_lists.setdefault("blocklist", {})
@@ -323,7 +333,7 @@ async def blocklist_add(
         return await interaction.response.send_message("This item is already in this filter list!", ephemeral=True)
     blocklist_players.append(bl_id)
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message(f"Added player to allowlist successfully!", ephemeral=True)
 
@@ -339,8 +349,10 @@ async def blocklist_remove(
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
     filter_lists = channel_data.setdefault("filter_lists", {})
     blocklist = filter_lists.setdefault("blocklist", {})
@@ -350,7 +362,7 @@ async def blocklist_remove(
         return await interaction.response.send_message("This player is already not in the allowlist!", ephemeral=True)
     blocklist_players.remove(bl_id)
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message(f"Removed player from allowlist successfully!", ephemeral=True)
 
@@ -361,15 +373,17 @@ async def add_admin_role(interaction: nextcord.Interaction, role: nextcord.Role)
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    admin_roles = guild_data.setdefault("admin_roles", [])
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    admin_roles = current_guild_data.setdefault("admin_roles", [])
 
     if role.id in admin_roles:
         return await interaction.response.send_message("This admin role is already registered.", ephemeral=True)
 
     admin_roles.append(role.id)
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message("Admin role added successfully!", ephemeral=True)
 
@@ -381,15 +395,17 @@ async def add_admin_role(interaction: nextcord.Interaction, role: nextcord.Role)
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    admin_roles = guild_data.setdefault("admin_roles", [])
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    admin_roles = current_guild_data.setdefault("admin_roles", [])
 
     if role.id not in admin_roles:
         return await interaction.response.send_message("This role already isn't in your guild's admin roles.", ephemeral=True)
 
     admin_roles.remove(role.id)
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message("Admin role removed successfully!", ephemeral=True)
 
@@ -418,8 +434,10 @@ async def lb_settings(
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
-    guild_data = GUILD_DATA["guilds"].setdefault(guild_id, {})
-    channels = guild_data.setdefault("channels", {})
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
     channel_data = channels.setdefault(channel_id, {})
     all_leaderboard_settings = channel_data.setdefault("leaderboard_settings", {})
     leaderboard_settings = all_leaderboard_settings.setdefault(leaderboard, {})
@@ -438,7 +456,7 @@ async def lb_settings(
         else:
             leaderboard_settings["rank_threshold"] = rank_threshold
 
-    save_data.save_data(GUILD_DATA, guild_data_path)
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message(f"Updated channel's {leaderboard} settings successfully!", ephemeral=True)
 
