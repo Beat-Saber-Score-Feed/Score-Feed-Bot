@@ -1,7 +1,7 @@
 import os
 from src.utils import save_data
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 guild_data_path = os.path.join(PROJECT_ROOT, "bot_data", "guild_data.json")
 user_data_path = os.path.join(PROJECT_ROOT, "bot_data", "user_data.json")
 
