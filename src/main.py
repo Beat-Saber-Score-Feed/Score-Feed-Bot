@@ -254,6 +254,8 @@ async def customize_element(
         lb_elements = customized_elements.setdefault(lb, {})
         lb_elements[element] = text
 
+    data_manager.save_guild_data()
+
     return await interaction.response.send_message("Element edited successfully.", ephemeral=True)
 
 @bot.slash_command(name="enable_allowlist")
