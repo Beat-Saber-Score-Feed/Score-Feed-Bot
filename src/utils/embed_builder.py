@@ -1,81 +1,35 @@
 import nextcord
 
-def build_embed(data, leaderboard = None):
+from src.utils import customizations
+
+def build_embed(data, leaderboard):
+    parsed_customizations = customizations.get_parsed_customizations(data)
+    lb_customizations = parsed_customizations[leaderboard]
+
+    embed = nextcord.Embed(
+        title=customizations.parse_template_string(lb_customizations["score_text"], data),
+        description=lb_customizations["main_line"],
+        color=data["color"],
+        url=f"https://beatsaver.com/maps/{data['beatsaver_id']}"
+    )
+
     if leaderboard == "ss":
-        embed = nextcord.Embed(
-            title=f"**{data['name']}** scored on **{data['song_name']}** [{data['extended_difficulty_name']}]!",
-            description=f"# <:scoresaber:1520959607303049237> **#{data['rank']}** / **{data['acc']}%** / **{data["ss_pp"]}pp**",
-            color=data["color"],
-            url=f"https://beatsaver.com/maps/{data['beatsaver_id']}"
-        )
-
-        embed.set_thumbnail(url=data['cover_image'])
-        embed.set_author(
-            name=data['name'],
-            icon_url=data['pfp'],
-            url=f"https://scoresaber.com/u/{data['player_id']}"
-        )
-
-        embed.add_field(name=f"Difficulty ⭐ {data['ss_stars']}", value="\u200B", inline=True)
-        embed.add_field(name=f"Max Combo 📈 {data['max_combo']}", value="\u200B", inline=True)
-        embed.add_field(name=f"Mistakes ❌ {data['mistakes']}", value="\u200B", inline=True)
-
+        profile_link = f"https://scoresaber.com/u/{data['player_id']}"
     elif leaderboard == "acc":
-        embed = nextcord.Embed(
-            title=f"**{data['name']}** scored on **{data['song_name']}** [{data['extended_difficulty_name']}]!",
-            description=f"# <:accsaber:1520959605415477318> **#{data['rank']}** / **{data['acc']}%** / **{data["acc_pp"]}ap**",
-            color=data["color"],
-            url=f"https://beatsaver.com/maps/{data['beatsaver_id']}"
-        )
-
-        embed.set_thumbnail(url=data['cover_image'])
-        embed.set_author(
-            name=data['name'],
-            icon_url=data['pfp'],
-            url=f"https://accsaberreloaded.com/players/{data['player_id']}"
-        )
-
-        embed.add_field(name=f"Complexity ⭐ {data['acc_stars']}", value="\u200B", inline=True)
-        embed.add_field(name=f"Max Combo 📈 {data['max_combo']}", value="\u200B", inline=True)
-        embed.add_field(name=f"Mistakes ❌ {data['mistakes']}", value="\u200B", inline=True)
-
-    elif leaderboard == "bl":
-        embed = nextcord.Embed(
-            title=f"**{data['name']}** scored on **{data['song_name']}** [{data['extended_difficulty_name']}]!",
-            description=f"# <:beatleader:1520959606119993506> **#{data['rank']}** / **{data['acc']}%** / **{data["bl_pp"]}pp**",
-            color=data["color"],
-            url=f"https://beatsaver.com/maps/{data['beatsaver_id']}"
-        )
-
-        embed.set_thumbnail(url=data['cover_image'])
-        embed.set_author(
-            name=data['name'],
-            icon_url=data['pfp'],
-            url=f"https://beatleader.com/u/{data['player_id']}"
-        )
-
-        embed.add_field(name=f"Difficulty ⭐ {data['bl_stars']}", value="\u200B", inline=True)
-        embed.add_field(name=f"Max Combo 📈 {data['max_combo']}", value="\u200B", inline=True)
-        embed.add_field(name=f"Mistakes ❌ {data['mistakes']}", value="\u200B", inline=True)
-
+        profile_link = f"https://accsaberreloaded.com/players/{data['player_id']}"
     else:
-        embed = nextcord.Embed(
-            title=f"**{data['name']}** scored on **{data['song_name']}** [{data['extended_difficulty_name']}]!",
-            description=f"# **#{data['rank']}** / **{data['acc']}%** / **Unranked**",
-            color=data["color"],
-            url=f"https://beatsaver.com/maps/{data['beatsaver_id']}"
-        )
+        profile_link = f"https://beatleader.com/u/{data['player_id']}"
 
-        embed.set_thumbnail(url=data['cover_image'])
-        embed.set_author(
-            name=data['name'],
-            icon_url=data['pfp'],
-            url=f"https://beatleader.com/u/{data['player_id']}"
-        )
+    embed.set_thumbnail(url=data['cover_image'])
+    embed.set_author(
+        name=data['name'],
+        icon_url=data['pfp'],
+        url=profile_link
+    )
 
-        embed.add_field(name=f"Difficulty ⭐ Unranked", value="\u200B", inline=True)
-        embed.add_field(name=f"Max Combo 📈 {data['max_combo']}", value="\u200B", inline=True)
-        embed.add_field(name=f"Mistakes ❌ {data['mistakes']}", value="\u200B", inline=True)
+    embed.add_field(name=lb_customizations["data_1"], value="\u200B", inline=True)
+    embed.add_field(name=lb_customizations["data_2"], value="\u200B", inline=True)
+    embed.add_field(name=lb_customizations["data_3"], value="\u200B", inline=True)
 
     return embed
 
@@ -83,28 +37,19 @@ def build_view(data, leaderboard = None):
     view = nextcord.ui.View()
 
     if leaderboard == "ss":
-        view.add_item(nextcord.ui.Button(
-            label="View on ScoreSaber",
-            url=f"https://scoresaber.com/map/{data['ss_map_id']}/difficulty/{data['ss_difficulty_id']}",
-        ))
-
+        text = "View on ScoreSaber"
+        leaderboard_link = f"https://scoresaber.com/map/{data['ss_map_id']}/difficulty/{data['ss_difficulty_id']}"
     elif leaderboard == "acc":
-        view.add_item(nextcord.ui.Button(
-            label="View on AccSaber Reloaded",
-            url=f"https://accsaberreloaded.com/maps/{data['beatsaver_id']}?difficulty={data['acc_difficulty_name'].lower()}",
-        ))
-
-    elif leaderboard == "bl":
-        view.add_item(nextcord.ui.Button(
-            label="View on BeatLeader",
-            url=f"https://beatleader.com/leaderboard/global/{data['leaderboard_id']}",
-        ))
-
+        text = "View on AccSaber Reloaded"
+        leaderboard_link = f"https://accsaberreloaded.com/maps/{data['beatsaver_id']}?difficulty={data['acc_difficulty_name'].lower()}"
     else:
-        view.add_item(nextcord.ui.Button(
-            label="View on BeatLeader",
-            url=f"https://beatleader.com/leaderboard/global/{data['leaderboard_id']}",
-        ))
+        text = "View on BeatLeader"
+        leaderboard_link = f"https://beatleader.com/leaderboard/global/{data['leaderboard_id']}"
+
+    view.add_item(nextcord.ui.Button(
+        label=text,
+        url=leaderboard_link,
+    ))
 
     view.add_item(nextcord.ui.Button(
         label="Watch Replay",
