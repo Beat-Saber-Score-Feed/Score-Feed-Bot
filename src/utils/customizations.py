@@ -46,7 +46,7 @@ DEFAULT_CUSTOMIZATIONS = {
 def get_customizations(channel_data):
     channel_customizations = channel_data.get("customization", {})
     if channel_customizations.get("enabled", False):
-        customized_elements = channel_customizations.setdefault("customizations", {})
+        customized_elements = channel_customizations.get("customizations", {})
     else:
         customized_elements = {}
 
