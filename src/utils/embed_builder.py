@@ -27,12 +27,20 @@ def build_embed(data, leaderboard, channel_data):
         url=profile_link
     )
 
-    embed.add_field(name=lb_customizations["data_1"], value="\u200B", inline=True)
-    embed.add_field(name=lb_customizations["data_2"], value="\u200B", inline=True)
-    embed.add_field(name=lb_customizations["data_3"], value="\u200B", inline=True)
-    embed.add_field(name=lb_customizations["data_4"], value="\u200B", inline=True)
-    embed.add_field(name=lb_customizations["data_5"], value="\u200B", inline=True)
-    embed.add_field(name=lb_customizations["data_6"], value="\u200B", inline=True)
+    #todo: make this less sloppy
+
+    if lb_customizations["data_1"] != "":
+        embed.add_field(name=lb_customizations["data_1"], value="\u200B", inline=True)
+    if lb_customizations["data_2"] != "":
+        embed.add_field(name=lb_customizations["data_2"], value="\u200B", inline=True)
+    if lb_customizations["data_3"] != "":
+        embed.add_field(name=lb_customizations["data_3"], value="\u200B", inline=True)
+    if lb_customizations["data_4"] != "":
+        embed.add_field(name=lb_customizations["data_4"], value="\u200B", inline=True)
+    if lb_customizations["data_5"] != "":
+        embed.add_field(name=lb_customizations["data_5"], value="\u200B", inline=True)
+    if lb_customizations["data_6"] != "":
+        embed.add_field(name=lb_customizations["data_6"], value="\u200B", inline=True)
 
     return embed
 
