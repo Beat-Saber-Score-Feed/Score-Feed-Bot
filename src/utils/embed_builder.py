@@ -3,7 +3,6 @@ import nextcord
 from src.utils import customizations, logger
 
 def build_embed(data, leaderboard, channel_data):
-    logger.log(data)
     parsed_customizations = customizations.get_parsed_customizations(data, channel_data)
     lb_customizations = parsed_customizations[leaderboard]
 
