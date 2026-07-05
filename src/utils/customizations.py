@@ -1,4 +1,5 @@
 from string import Template
+import copy
 from src.utils import logger
 
 DEFAULT_CUSTOMIZATIONS = {
@@ -51,7 +52,7 @@ def get_customizations(channel_data):
     else:
         customized_elements = {}
 
-    return {**DEFAULT_CUSTOMIZATIONS, **customized_elements}
+    return copy.deepcopy(DEFAULT_CUSTOMIZATIONS) | copy.deepcopy(customized_elements)
 
 def get_parsed_customizations(data, channel_data):
     customizations = get_customizations(channel_data)
