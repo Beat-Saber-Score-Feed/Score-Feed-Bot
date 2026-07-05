@@ -202,13 +202,13 @@ async def disable_channel_customization(
 @bot.slash_command(name="customize_element")
 async def customize_element(
         interaction: nextcord.Interaction,
-        leaderboard: list[str] = nextcord.SlashOption(
+        leaderboard: str = nextcord.SlashOption(
             choices={
-                "ScoreSaber": ["ss"],
-                "BeatLeader": ["bl"],
-                "AccSaber": ["acc"],
-                "Unranked": ["unr"],
-                "All": ["ss", "bl", "acc", "all"]
+                "ScoreSaber": "ss",
+                "BeatLeader": "bl",
+                "AccSaber": "acc",
+                "Unranked": "unr",
+                "All": "all"
             }
         ),
         element: str = nextcord.SlashOption(
@@ -232,6 +232,16 @@ async def customize_element(
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
+    lb_mapping = {
+        "ss": ["ss"],
+        "bl": ["bl"],
+        "acc": ["acc"],
+        "unr": ["unr"],
+        "all": ["ss", "bl", "acc", "unr"],
+    }
+
+    leaderboards = lb_mapping[leaderboard]
+
     guild_data = data_manager.get_guild_data()
 
     current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
@@ -240,7 +250,7 @@ async def customize_element(
     channel_customizations = channel_data.setdefault("customization", {})
     customized_elements = channel_customizations.setdefault("customizations", {})
 
-    for lb in leaderboard:
+    for lb in leaderboards:
         lb_elements = customized_elements.setdefault(lb, {})
         lb_elements[element] = text
 
