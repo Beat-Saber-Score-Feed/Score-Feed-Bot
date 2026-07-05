@@ -62,7 +62,6 @@ def get_parsed_customizations(data, channel_data):
 
     return customizations
 
-def parse_template_string(template: str, data: dict):
-    logger.log(str(data))
+def parse_template_string(template: str, data):
     template = Template(template)
     return template.safe_substitute(**data)
