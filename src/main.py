@@ -150,8 +150,8 @@ async def disable_channel(
 
     return await interaction.response.send_message("Score Feed is now disabled in this channel.", ephemeral=True)
 
-@bot.slash_command(name="enable_channel_customization")
-async def enable_channel_customization(
+@bot.slash_command(name="enable_customizations")
+async def enable_customizations(
         interaction: nextcord.Interaction,
         channel: nextcord.TextChannel = None,
 ):
@@ -175,8 +175,8 @@ async def enable_channel_customization(
     return await interaction.response.send_message("Enabled customization successfully.", ephemeral=True)
 
 
-@bot.slash_command(name="disable_channel_customization")
-async def disable_channel_customization(
+@bot.slash_command(name="disable_customizations")
+async def disable_customizations(
         interaction: nextcord.Interaction,
         channel: nextcord.TextChannel = None,
 ):
