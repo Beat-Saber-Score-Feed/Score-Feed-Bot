@@ -54,7 +54,6 @@ def get_customizations(channel_data):
     return {**DEFAULT_CUSTOMIZATIONS, **customized_elements}
 
 def get_parsed_customizations(data, channel_data):
-    logger.log(data)
     customizations = get_customizations(channel_data)
 
     for lb in customizations:
