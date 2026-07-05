@@ -202,15 +202,6 @@ async def disable_customizations(
 @bot.slash_command(name="customize_element")
 async def customize_element(
         interaction: nextcord.Interaction,
-        leaderboard: str = nextcord.SlashOption(
-            choices={
-                "ScoreSaber": "ss",
-                "BeatLeader": "bl",
-                "AccSaber": "acc",
-                "Unranked": "unr",
-                "All": "all"
-            }
-        ),
         element: str = nextcord.SlashOption(
             choices={
                 "Score Text": "score_text",
@@ -221,6 +212,15 @@ async def customize_element(
                 "Data Slot 4": "data_4",
                 "Data Slot 5": "data_5",
                 "Data Slot 6": "data_6",
+            }
+        ),
+        leaderboard: str = nextcord.SlashOption(
+            choices={
+                "ScoreSaber": "ss",
+                "BeatLeader": "bl",
+                "AccSaber": "acc",
+                "Unranked": "unr",
+                "All": "all"
             }
         ),
         text: str = "",
@@ -261,15 +261,6 @@ async def customize_element(
 @bot.slash_command(name="reset_element")
 async def reset_element(
         interaction: nextcord.Interaction,
-        leaderboard: str = nextcord.SlashOption(
-            choices={
-                "ScoreSaber": "ss",
-                "BeatLeader": "bl",
-                "AccSaber": "acc",
-                "Unranked": "unr",
-                "All": "all"
-            }
-        ),
         element: str = nextcord.SlashOption(
             choices={
                 "Score Text": "score_text",
@@ -280,6 +271,15 @@ async def reset_element(
                 "Data Slot 4": "data_4",
                 "Data Slot 5": "data_5",
                 "Data Slot 6": "data_6",
+            }
+        ),
+        leaderboard: str = nextcord.SlashOption(
+            choices={
+                "ScoreSaber": "ss",
+                "BeatLeader": "bl",
+                "AccSaber": "acc",
+                "Unranked": "unr",
+                "All": "all"
             }
         ),
         channel: nextcord.TextChannel = None,
