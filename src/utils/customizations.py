@@ -1,6 +1,5 @@
 from string import Template
 import copy
-from src.utils import logger
 
 DEFAULT_CUSTOMIZATIONS = {
     "ss": {
@@ -9,9 +8,9 @@ DEFAULT_CUSTOMIZATIONS = {
         "data_1": "Stars ⭐ ${ss_stars}",
         "data_2": "Max Combo 📈 ${max_combo}",
         "data_3": "Mistakes ❌ ${mistakes}",
-        "data_4": "",
-        "data_5": "",
-        "data_6": "",
+        "data_4": None,
+        "data_5": None,
+        "data_6": None,
     },
     "bl": {
         "score_text": "**${name}** scored on **${song_name}** [${extended_difficulty_name}]!",
@@ -19,9 +18,9 @@ DEFAULT_CUSTOMIZATIONS = {
         "data_1": "Stars ⭐ ${bl_stars}",
         "data_2": "Max Combo 📈 ${max_combo}",
         "data_3": "Mistakes ❌ ${mistakes}",
-        "data_4": "",
-        "data_5": "",
-        "data_6": "",
+        "data_4": None,
+        "data_5": None,
+        "data_6": None,
     },
     "acc": {
         "score_text": "**${name}** scored on **${song_name}** [${extended_difficulty_name}]!",
@@ -29,9 +28,9 @@ DEFAULT_CUSTOMIZATIONS = {
         "data_1": "Complexity ⭐ ${acc_stars}",
         "data_2": "Max Combo 📈 ${max_combo}",
         "data_3": "Mistakes ❌ ${mistakes}",
-        "data_4": "",
-        "data_5": "",
-        "data_6": "",
+        "data_4": None,
+        "data_5": None,
+        "data_6": None,
     },
     "unr": {
         "score_text": "**${name}** scored on **${song_name}** [${extended_difficulty_name}]!",
@@ -39,9 +38,9 @@ DEFAULT_CUSTOMIZATIONS = {
         "data_1": "Stars ⭐ Unranked",
         "data_2": "Max Combo 📈 ${max_combo}",
         "data_3": "Mistakes ❌ ${mistakes}",
-        "data_4": "",
-        "data_5": "",
-        "data_6": "",
+        "data_4": None,
+        "data_5": None,
+        "data_6": None,
     }
 }
 
