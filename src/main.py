@@ -9,7 +9,7 @@ import traceback
 from nextcord.ext import commands, tasks
 from dotenv import load_dotenv
 
-from src.utils import logger, score_parser, embed_builder, save_data, data_manager
+from src.utils import logger, score_parser, embed_builder, data_manager
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -251,7 +251,6 @@ async def customize_element(
                 "Data Slot 6": "data_6",
             }
         ),
-        text: str = "",
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
