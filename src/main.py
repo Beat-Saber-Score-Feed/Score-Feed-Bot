@@ -110,7 +110,7 @@ async def enable_channel(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!",ephemeral=True)
@@ -133,7 +133,7 @@ async def disable_channel(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!",ephemeral = True)
@@ -156,7 +156,7 @@ async def enable_channel_customization(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
@@ -181,7 +181,7 @@ async def disable_channel_customization(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
@@ -227,7 +227,7 @@ async def customize_element(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
@@ -264,7 +264,7 @@ async def enable_allowlist(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
@@ -289,7 +289,7 @@ async def disable_allowlist(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral = True)
@@ -315,7 +315,7 @@ async def enable_blocklist(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
@@ -341,7 +341,7 @@ async def disable_blocklist(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
@@ -367,7 +367,7 @@ async def allowlist_add(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
@@ -402,7 +402,7 @@ async def allowlist_remove(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
@@ -431,7 +431,7 @@ async def blocklist_add(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
@@ -466,7 +466,7 @@ async def blocklist_remove(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
 
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
@@ -553,7 +553,7 @@ async def lb_settings(
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
+    channel_id = str((channel or interaction.channel).id)
     if not check_perms(interaction.user, guild_id):
         return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
