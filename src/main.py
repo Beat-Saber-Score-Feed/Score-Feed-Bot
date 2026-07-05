@@ -242,7 +242,7 @@ async def customize_element(
 
     for lb in leaderboard:
         lb_elements = customized_elements.setdefault(lb, {})
-        lb_elements["element"] = text
+        lb_elements[element] = text
 
     return await interaction.response.send_message("Element edited successfully.", ephemeral=True)
 
