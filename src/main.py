@@ -310,11 +310,14 @@ async def reset_element(
 
     for lb in leaderboards:
         lb_elements = customized_elements.setdefault(lb, {})
-        lb_elements.pop(element)
+        try:
+            lb_elements.pop(element)
+        except KeyError:
+            return await interaction.response.send_message("Element already was not customized.", ephemeral=True)
 
     data_manager.save_guild_data()
 
-    return await interaction.response.send_message("Element edited successfully.", ephemeral=True)
+    return await interaction.response.send_message("Element reset successfully.", ephemeral=True)
 
 @bot.slash_command(name="enable_allowlist")
 async def enable_allowlist(
