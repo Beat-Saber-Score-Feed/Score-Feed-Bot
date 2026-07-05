@@ -1,13 +1,14 @@
 import nextcord
 
-from src.utils import customizations
+from src.utils import customizations, logger
 
 def build_embed(data, leaderboard, channel_data):
+    logger.log(data)
     parsed_customizations = customizations.get_parsed_customizations(data, channel_data)
     lb_customizations = parsed_customizations[leaderboard]
 
     embed = nextcord.Embed(
-        title=customizations.parse_template_string(lb_customizations["score_text"], data),
+        title=lb_customizations["score_text"],
         description=lb_customizations["main_line"],
         color=data["color"],
         url=f"https://beatsaver.com/maps/{data['beatsaver_id']}"

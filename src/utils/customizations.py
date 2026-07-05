@@ -1,7 +1,5 @@
 from string import Template
 
-from src.utils import data_manager
-
 DEFAULT_CUSTOMIZATIONS = {
     "ss": {
         "score_text": "**${name}** scored on **${song_name}** [${extended_difficulty_name}]!",
