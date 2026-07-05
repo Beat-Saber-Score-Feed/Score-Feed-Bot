@@ -202,6 +202,15 @@ async def disable_channel_customization(
 @bot.slash_command(name="customize_element")
 async def customize_element(
         interaction: nextcord.Interaction,
+        leaderboard: list[str] = nextcord.SlashOption(
+            choices={
+                "ScoreSaber": ["ss"],
+                "BeatLeader": ["bl"],
+                "AccSaber": ["acc"],
+                "Unranked": ["unr"],
+                "All": ["ss", "bl", "acc", "all"]
+            }
+        ),
         element: str = nextcord.SlashOption(
             choices={
                 "Score Text": "score_text",
@@ -231,46 +240,9 @@ async def customize_element(
     channel_customizations = channel_data.setdefault("customization", {})
     customized_elements = channel_customizations.setdefault("customizations", {})
 
-    customized_elements[element] = text
-
-    return await interaction.response.send_message("Element edited successfully.", ephemeral=True)
-
-
-@bot.slash_command(name="customize_element")
-async def customize_element(
-        interaction: nextcord.Interaction,
-        element: str = nextcord.SlashOption(
-            choices={
-                "Score Text": "score_text",
-                "Main Line": "main_line",
-                "Data Slot 1": "data_1",
-                "Data Slot 2": "data_2",
-                "Data Slot 3": "data_3",
-                "Data Slot 4": "data_4",
-                "Data Slot 5": "data_5",
-                "Data Slot 6": "data_6",
-            }
-        ),
-        channel: nextcord.TextChannel = None,
-):
-    guild_id = str(interaction.guild.id)
-    channel_id = str(channel.id) or str(interaction.channel.id)
-
-    if not check_perms(interaction.user, guild_id):
-        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
-
-    guild_data = data_manager.get_guild_data()
-
-    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
-    channels = current_guild_data.setdefault("channels", {})
-    channel_data = channels.setdefault(channel_id, {})
-    channel_customizations = channel_data.setdefault("customization", {})
-    customized_elements = channel_customizations.setdefault("customizations", [])
-
-    try:
-        customized_elements.pop(element)
-    except KeyError:
-        return await interaction.response.send_message("Element was not customized to begin with.", ephemeral=True)
+    for lb in leaderboard:
+        lb_elements = customized_elements.setdefault(lb, {})
+        lb_elements["element"] = text
 
     return await interaction.response.send_message("Element edited successfully.", ephemeral=True)
 
