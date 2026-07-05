@@ -1,5 +1,6 @@
-import re
 from string import Template
+
+from src.utils import data_manager
 
 DEFAULT_CUSTOMIZATIONS = {
     "ss": {
@@ -8,6 +9,9 @@ DEFAULT_CUSTOMIZATIONS = {
         "data_1": "Stars ⭐ ${ss_stars}",
         "data_2": "Max Combo 📈 ${max_combo}",
         "data_3": "Mistakes ❌ ${mistakes}",
+        "data_4": "",
+        "data_5": "",
+        "data_6": "",
     },
     "bl": {
         "score_text": "**${name}** scored on **${song_name}** [${extended_difficulty_name}]!",
@@ -15,6 +19,9 @@ DEFAULT_CUSTOMIZATIONS = {
         "data_1": "Stars ⭐ ${bl_stars}",
         "data_2": "Max Combo 📈 ${max_combo}",
         "data_3": "Mistakes ❌ ${mistakes}",
+        "data_4": "",
+        "data_5": "",
+        "data_6": "",
     },
     "acc": {
         "score_text": "**${name}** scored on **${song_name}** [${extended_difficulty_name}]!",
@@ -22,6 +29,9 @@ DEFAULT_CUSTOMIZATIONS = {
         "data_1": "Complexity ⭐ ${acc_stars}",
         "data_2": "Max Combo 📈 ${max_combo}",
         "data_3": "Mistakes ❌ ${mistakes}",
+        "data_4": "",
+        "data_5": "",
+        "data_6": "",
     },
     "unr": {
         "score_text": "**${name}** scored on **${song_name}** [${extended_difficulty_name}]!",
@@ -29,15 +39,23 @@ DEFAULT_CUSTOMIZATIONS = {
         "data_1": "Stars ⭐ Unranked",
         "data_2": "Max Combo 📈 ${max_combo}",
         "data_3": "Mistakes ❌ ${mistakes}",
+        "data_4": "",
+        "data_5": "",
+        "data_6": "",
     }
 }
 
-# todo: update with real player customizations getting code
-def get_customizations():
-    return DEFAULT_CUSTOMIZATIONS
+def get_customizations(channel_data):
+    channel_customizations = channel_data.get("customization", {})
+    if channel_customizations["enabled"]:
+        customized_elements = channel_customizations.setdefault("customizations", {})
+    else:
+        customized_elements = {}
 
-def get_parsed_customizations(data):
-    customizations = get_customizations()
+    return {**DEFAULT_CUSTOMIZATIONS, **customized_elements}
+
+def get_parsed_customizations(data, channel_data):
+    customizations = get_customizations(channel_data)
 
     for lb in customizations:
         for element in customizations[lb]:

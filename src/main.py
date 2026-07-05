@@ -75,7 +75,7 @@ async def listener():
                                         if parsed_data.get("rank") > leaderboard_settings.get("rank_threshold",math.inf):
                                             continue
 
-                                        embed = embed_builder.build_embed(parsed_data, leaderboard)
+                                        embed = embed_builder.build_embed(parsed_data, leaderboard, channel_data)
                                         view = embed_builder.build_view(parsed_data, leaderboard)
                                         send_tasks.append(channel.send(embed=embed, view=view))
 
@@ -150,6 +150,131 @@ async def disable_channel(
 
     return await interaction.response.send_message("Score Feed is now disabled in this channel.", ephemeral=True)
 
+@bot.slash_command(name="enable_channel_customization")
+async def enable_channel_customization(
+        interaction: nextcord.Interaction,
+        channel: nextcord.TextChannel = None,
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str(channel.id) or str(interaction.channel.id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    channel_customizations = channel_data.setdefault("customization", {})
+
+    channel_customizations["enabled"] = True
+
+    data_manager.save_guild_data()
+
+    return await interaction.response.send_message("Enabled customization successfully.", ephemeral=True)
+
+
+@bot.slash_command(name="disable_channel_customization")
+async def disable_channel_customization(
+        interaction: nextcord.Interaction,
+        channel: nextcord.TextChannel = None,
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str(channel.id) or str(interaction.channel.id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    channel_customizations = channel_data.setdefault("customization", {})
+
+    channel_customizations["enabled"] = False
+
+    data_manager.save_guild_data()
+
+    return await interaction.response.send_message("Disabled customization successfully.", ephemeral=True)
+
+@bot.slash_command(name="customize_element")
+async def customize_element(
+        interaction: nextcord.Interaction,
+        element: str = nextcord.SlashOption(
+            choices={
+                "Score Text": "score_text",
+                "Main Line": "main_line",
+                "Data Slot 1": "data_1",
+                "Data Slot 2": "data_2",
+                "Data Slot 3": "data_3",
+                "Data Slot 4": "data_4",
+                "Data Slot 5": "data_5",
+                "Data Slot 6": "data_6",
+            }
+        ),
+        text: str = "",
+        channel: nextcord.TextChannel = None,
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str(channel.id) or str(interaction.channel.id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    channel_customizations = channel_data.setdefault("customization", {})
+    customized_elements = channel_customizations.setdefault("customizations", {})
+
+    customized_elements[element] = text
+
+    return await interaction.response.send_message("Element edited successfully.", ephemeral=True)
+
+
+@bot.slash_command(name="customize_element")
+async def customize_element(
+        interaction: nextcord.Interaction,
+        element: str = nextcord.SlashOption(
+            choices={
+                "Score Text": "score_text",
+                "Main Line": "main_line",
+                "Data Slot 1": "data_1",
+                "Data Slot 2": "data_2",
+                "Data Slot 3": "data_3",
+                "Data Slot 4": "data_4",
+                "Data Slot 5": "data_5",
+                "Data Slot 6": "data_6",
+            }
+        ),
+        text: str = "",
+        channel: nextcord.TextChannel = None,
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str(channel.id) or str(interaction.channel.id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+    channel_customizations = channel_data.setdefault("customization", {})
+    customized_elements = channel_customizations.setdefault("customizations", [])
+
+    try:
+        customized_elements.pop(element)
+    except KeyError:
+        return await interaction.response.send_message("Element was not customized to begin with.", ephemeral=True)
+
+    return await interaction.response.send_message("Element edited successfully.", ephemeral=True)
+
 @bot.slash_command(name="enable_allowlist")
 async def enable_allowlist(
         interaction: nextcord.Interaction,
@@ -159,7 +284,7 @@ async def enable_allowlist(
     channel_id = str(channel.id) or str(interaction.channel.id)
 
     if not check_perms(interaction.user, guild_id):
-        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral = True)
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
 
     guild_data = data_manager.get_guild_data()
 

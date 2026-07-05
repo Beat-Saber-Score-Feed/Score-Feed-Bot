@@ -2,8 +2,8 @@ import nextcord
 
 from src.utils import customizations
 
-def build_embed(data, leaderboard):
-    parsed_customizations = customizations.get_parsed_customizations(data)
+def build_embed(data, leaderboard, channel_data):
+    parsed_customizations = customizations.get_parsed_customizations(data, channel_data)
     lb_customizations = parsed_customizations[leaderboard]
 
     embed = nextcord.Embed(
@@ -30,6 +30,9 @@ def build_embed(data, leaderboard):
     embed.add_field(name=lb_customizations["data_1"], value="\u200B", inline=True)
     embed.add_field(name=lb_customizations["data_2"], value="\u200B", inline=True)
     embed.add_field(name=lb_customizations["data_3"], value="\u200B", inline=True)
+    embed.add_field(name=lb_customizations["data_4"], value="\u200B", inline=True)
+    embed.add_field(name=lb_customizations["data_5"], value="\u200B", inline=True)
+    embed.add_field(name=lb_customizations["data_6"], value="\u200B", inline=True)
 
     return embed
 
