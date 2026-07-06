@@ -2,3 +2,4 @@ nextcord
 websockets
 requests
 python-dotenv
+deepmerge
