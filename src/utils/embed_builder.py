@@ -42,6 +42,9 @@ def build_embed(data, leaderboard, channel_data):
     if lb_customizations["data_6"] != "":
         embed.add_field(name=lb_customizations["data_6"], value="\u200B", inline=True)
 
+    if data["mods"] != "":
+        embed.add_field(name=data["mods"].replace(",", ", "), value="\u200B", inline=False)
+
     return embed
 
 def build_view(data, leaderboard = None):
