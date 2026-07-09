@@ -39,7 +39,7 @@ def build_embed(data, leaderboard, channel_data):
 
     for i in range(1, 7):
         if check_add(f"data_{i}", data, lb_customizations):
-            embed.add_field(name=lb_customizations[f"data_{i}"], value="\u200B", inline=True)
+            embed.add_field(name=lb_customizations[f"data_{i}"]["text"], value="\u200B", inline=True)
 
     return embed
 
