@@ -84,7 +84,7 @@ def parse_score(score_data):
         ranked_leaderboards.append("acc")
 
     other_data = {
-        "ranked_leaderboards": ranked_leaderboards or ["unr"]
+        "ranked_leaderboards": ranked_leaderboards or ["unr"],
     }
 
     if bl_converted_data["rank"] == 1:
