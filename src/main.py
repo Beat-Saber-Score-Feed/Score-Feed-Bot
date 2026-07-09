@@ -346,7 +346,7 @@ async def reset_element(
             except KeyError:
                 pass
 
-        data_manager.save_guild_data()
+    data_manager.save_guild_data()
 
     return await interaction.response.send_message("Element reset successfully.", ephemeral=True)
 
