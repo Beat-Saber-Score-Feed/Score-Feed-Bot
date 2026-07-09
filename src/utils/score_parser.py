@@ -75,6 +75,9 @@ def parse_score(score_data):
 
     other_data = {}
 
+    if bl_converted_data["bl_pp"] > 0 or ss_converted_data["ss_pp"] > 0 or acc_converted_data["acc_pp"] > 0:
+        other_data["unr_pp"] = 1
+
     if bl_converted_data["rank"] == 1:
         other_data["color"] = nextcord.Color.red()
     elif bl_converted_data["rank"] <= 10:

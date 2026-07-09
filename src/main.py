@@ -659,7 +659,7 @@ async def lb_settings(
 
     leaderboard_settings["enabled"] = enabled
 
-    if pp_threshold and leaderboard != "unr":
+    if pp_threshold:
         if pp_threshold == 0:
             leaderboard_settings["pp_threshold"] = None
         else:
