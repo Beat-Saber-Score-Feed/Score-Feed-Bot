@@ -73,13 +73,17 @@ async def listener():
 
                                     for leaderboard in leaderboards:
                                         leaderboard_settings = all_leaderboard_settings.get(leaderboard, {})
-                                        if not leaderboard_settings.get("enabled", True):
-                                            continue
 
                                         if parsed_data.get(f"{leaderboard}_pp", 0) < leaderboard_settings.get("pp_threshold", 0.001):
                                             continue
 
                                         if parsed_data.get("rank") > leaderboard_settings.get("rank_threshold",math.inf):
+                                            continue
+
+                                        if not leaderboard_settings.get("enabled", True):
+                                            unranked_settings = all_leaderboard_settings.get("unr", {})
+                                            if unranked_settings.get("enabled", True):
+                                                valid_leaderboards.append("unr")
                                             continue
 
                                         valid_leaderboards.append(leaderboard)
