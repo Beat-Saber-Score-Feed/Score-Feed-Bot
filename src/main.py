@@ -82,7 +82,7 @@ async def listener():
 
                                         if not leaderboard_settings.get("enabled", True):
                                             unranked_settings = all_leaderboard_settings.get("unr", {})
-                                            if unranked_settings.get("enabled", True):
+                                            if unranked_settings.get("enabled", True) and "unr" not in valid_leaderboards:
                                                 valid_leaderboards.append("unr")
                                             continue
 
