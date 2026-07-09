@@ -77,7 +77,7 @@ async def listener():
                                         if not leaderboard_settings.get("enabled", True):
                                             continue
 
-                                        if parsed_data.get(f"{leaderboard}_pp", -1) < leaderboard_settings.get("pp_threshold", 0):
+                                        if parsed_data.get(f"{leaderboard}_pp", 0) < leaderboard_settings.get("pp_threshold", 0.001):
                                             continue
 
                                         if parsed_data.get("rank") > leaderboard_settings.get("rank_threshold",math.inf):
