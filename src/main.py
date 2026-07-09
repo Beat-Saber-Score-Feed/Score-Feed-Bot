@@ -67,7 +67,6 @@ async def listener():
                                         "ss",
                                         "bl",
                                         "acc",
-                                        "unr"
                                     ]
 
                                     valid_leaderboards = []
