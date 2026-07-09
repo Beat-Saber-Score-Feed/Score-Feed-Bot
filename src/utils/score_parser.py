@@ -30,7 +30,8 @@ def parse_score(score_data):
         "max_combo": score_data["maxCombo"],
         "bl_pp": round(score_data["pp"], 2),
         "bl_stars": round(score_data["leaderboard"]["difficulty"].get("stars") or 0, 2),
-        "mods": score_data["modifiers"]
+        "mods": score_data["modifiers"],
+        "formatted_mods": score_data["modifiers"].replace(",", ", ")
     }
 
     ss_resp = requests.get(f"https://scoresaber.com/api/v2/leaderboards/hash/{bl_converted_data['hash']}/{bl_converted_data['extended_mode']}/{bl_converted_data['difficulty_number']}",params={"realmId": "1"})
@@ -72,20 +73,10 @@ def parse_score(score_data):
         "acc_difficulty_name": accsaber.convert_difficulty(bl_converted_data["difficulty_number"]),
     }
 
-    ranked_leaderboards = []
+    other_data = {}
 
-    if bl_converted_data["bl_stars"] > 0:
-        ranked_leaderboards.append("bl")
-
-    if ss_converted_data["ss_stars"] > 0:
-        ranked_leaderboards.append("ss")
-
-    if acc_converted_data["acc_stars"] > 0:
-        ranked_leaderboards.append("acc")
-
-    other_data = {
-        "ranked_leaderboards": ranked_leaderboards or ["unr"]
-    }
+    if bl_converted_data["bl_pp"] > 0 or ss_converted_data["ss_pp"] > 0 or acc_converted_data["acc_pp"] > 0:
+        other_data["unr_pp"] = 1
 
     if bl_converted_data["rank"] == 1:
         other_data["color"] = nextcord.Color.red()

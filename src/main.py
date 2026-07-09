@@ -63,18 +63,37 @@ async def listener():
 
                                     all_leaderboard_settings = channel_data.get("leaderboard_settings", {})
 
-                                    for leaderboard in parsed_data["ranked_leaderboards"]:
+                                    leaderboards = [
+                                        "ss",
+                                        "bl",
+                                        "acc",
+                                    ]
+
+                                    valid_leaderboards = []
+
+                                    for leaderboard in leaderboards:
                                         leaderboard_settings = all_leaderboard_settings.get(leaderboard, {})
 
-                                        if not leaderboard_settings.get("enabled", True):
-                                            continue
-
-                                        if parsed_data.get(f"{leaderboard}_pp", 0) < leaderboard_settings.get("pp_threshold", 0):
+                                        if parsed_data.get(f"{leaderboard}_pp", 0) < leaderboard_settings.get("pp_threshold", 0.001):
                                             continue
 
                                         if parsed_data.get("rank") > leaderboard_settings.get("rank_threshold",math.inf):
                                             continue
 
+                                        if not leaderboard_settings.get("enabled", True):
+                                            unranked_settings = all_leaderboard_settings.get("unr", {})
+                                            if unranked_settings.get("enabled", True) and "unr" not in valid_leaderboards:
+                                                valid_leaderboards.append("unr")
+                                            continue
+
+                                        valid_leaderboards.append(leaderboard)
+
+                                    if not valid_leaderboards:
+                                        unranked_settings = all_leaderboard_settings.get("unr", {})
+                                        if unranked_settings.get("enabled", True):
+                                            valid_leaderboards.append("unr")
+
+                                    for leaderboard in valid_leaderboards:
                                         embed = embed_builder.build_embed(parsed_data, leaderboard, channel_data)
                                         view = embed_builder.build_view(parsed_data, leaderboard)
                                         send_tasks.append(channel.send(embed=embed, view=view))
@@ -224,6 +243,7 @@ async def customize_element(
             }
         ),
         text: str = "",
+        autohide: str = None,
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
@@ -252,7 +272,9 @@ async def customize_element(
 
     for lb in leaderboards:
         lb_elements = customized_elements.setdefault(lb, {})
-        lb_elements[element] = text
+        current_element = lb_elements.setdefault(element, {})
+        current_element["text"] = text
+        current_element["autohide"] = autohide
 
     data_manager.save_guild_data()
 
@@ -271,6 +293,7 @@ async def reset_element(
                 "Data Slot 4": "data_4",
                 "Data Slot 5": "data_5",
                 "Data Slot 6": "data_6",
+                "All": "all"
             }
         ),
         leaderboard: str = nextcord.SlashOption(
@@ -308,12 +331,20 @@ async def reset_element(
     channel_customizations = channel_data.setdefault("customization", {})
     customized_elements = channel_customizations.setdefault("customizations", {})
 
-    for lb in leaderboards:
-        lb_elements = customized_elements.setdefault(lb, {})
-        try:
-            lb_elements.pop(element)
-        except KeyError:
-            return await interaction.response.send_message("Element already was not customized.", ephemeral=True)
+    if element == "all":
+        for lb in leaderboards:
+            try:
+                customized_elements.pop(lb)
+            except KeyError:
+                pass
+
+    else:
+        for lb in leaderboards:
+            lb_elements = customized_elements.setdefault(lb, {})
+            try:
+                lb_elements.pop(element)
+            except KeyError:
+                pass
 
     data_manager.save_guild_data()
 
@@ -628,7 +659,7 @@ async def lb_settings(
 
     leaderboard_settings["enabled"] = enabled
 
-    if pp_threshold and leaderboard != "unr":
+    if pp_threshold:
         if pp_threshold == 0:
             leaderboard_settings["pp_threshold"] = None
         else:

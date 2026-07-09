@@ -2,13 +2,23 @@ import nextcord
 
 from src.utils import customizations, logger
 
+def check_add(slot: str, data, lb_customizations):
+    if lb_customizations[slot]["text"] == "":
+        return False
+
+    autohide = lb_customizations[slot]["autohide"]
+    if autohide and not data.get(autohide):
+        return False
+
+    return True
+
 def build_embed(data, leaderboard, channel_data):
     parsed_customizations = customizations.get_parsed_customizations(data, channel_data)
     lb_customizations = parsed_customizations[leaderboard]
 
     embed = nextcord.Embed(
-        title=lb_customizations["score_text"],
-        description=lb_customizations["main_line"],
+        title=lb_customizations["score_text"]["text"],
+        description=lb_customizations["main_line"]["text"],
         color=data["color"],
         url=f"https://beatsaver.com/maps/{data['beatsaver_id']}"
     )
@@ -27,23 +37,9 @@ def build_embed(data, leaderboard, channel_data):
         url=profile_link
     )
 
-    #todo: make this less sloppy
-
-    if lb_customizations["data_1"] != "":
-        embed.add_field(name=lb_customizations["data_1"], value="\u200B", inline=True)
-    if lb_customizations["data_2"] != "":
-        embed.add_field(name=lb_customizations["data_2"], value="\u200B", inline=True)
-    if lb_customizations["data_3"] != "":
-        embed.add_field(name=lb_customizations["data_3"], value="\u200B", inline=True)
-    if lb_customizations["data_4"] != "":
-        embed.add_field(name=lb_customizations["data_4"], value="\u200B", inline=True)
-    if lb_customizations["data_5"] != "":
-        embed.add_field(name=lb_customizations["data_5"], value="\u200B", inline=True)
-    if lb_customizations["data_6"] != "":
-        embed.add_field(name=lb_customizations["data_6"], value="\u200B", inline=True)
-
-    if data["mods"] != "":
-        embed.add_field(name=data["mods"].replace(",", ", "), value="\u200B", inline=False)
+    for i in range(1, 7):
+        if check_add(f"data_{i}", data, lb_customizations):
+            embed.add_field(name=lb_customizations[f"data_{i}"]["text"], value="\u200B", inline=True)
 
     return embed
 
