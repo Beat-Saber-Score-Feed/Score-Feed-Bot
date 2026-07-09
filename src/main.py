@@ -293,6 +293,7 @@ async def reset_element(
                 "Data Slot 4": "data_4",
                 "Data Slot 5": "data_5",
                 "Data Slot 6": "data_6",
+                "All": "all"
             }
         ),
         leaderboard: str = nextcord.SlashOption(
@@ -330,14 +331,22 @@ async def reset_element(
     channel_customizations = channel_data.setdefault("customization", {})
     customized_elements = channel_customizations.setdefault("customizations", {})
 
-    for lb in leaderboards:
-        lb_elements = customized_elements.setdefault(lb, {})
-        try:
-            lb_elements.pop(element)
-        except KeyError:
-            return await interaction.response.send_message("Element already was not customized.", ephemeral=True)
+    if element == "all":
+        for lb in leaderboards:
+            try:
+                customized_elements.pop(lb)
+            except KeyError:
+                pass
 
-    data_manager.save_guild_data()
+    else:
+        for lb in leaderboards:
+            lb_elements = customized_elements.setdefault(lb, {})
+            try:
+                lb_elements.pop(element)
+            except KeyError:
+                pass
+
+        data_manager.save_guild_data()
 
     return await interaction.response.send_message("Element reset successfully.", ephemeral=True)
 
