@@ -253,8 +253,9 @@ async def customize_element(
 
     for lb in leaderboards:
         lb_elements = customized_elements.setdefault(lb, {})
-        lb_elements[element]["text"] = text
-        lb_elements[element]["autohide"] = autohide
+        element = lb_elements.setdefault(element, {})
+        element["text"] = text
+        element["autohide"] = autohide
 
     data_manager.save_guild_data()
 
