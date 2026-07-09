@@ -7,7 +7,7 @@ def check_add(slot: str, data, lb_customizations):
         return False
 
     autohide = lb_customizations[slot]["autohide"]
-    if autohide and not data[autohide]:
+    if autohide and not data.get(autohide):
         return False
 
     return True
