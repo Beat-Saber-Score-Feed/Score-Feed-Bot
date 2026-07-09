@@ -21,8 +21,9 @@ accsaber_curve = [[0, 0], [0.9349050106584025, 0.1995400780527346], [0.936109641
 pp_multiplier = 61
 
 def calculate_ap(complexity, acc):
+    if complexity == 0:
+        return 0
     return round((complexity+18) * pp_multiplier * interpolation.interpolate(acc, accsaber_curve), 2)
-
 
 def convert_difficulty(difficulty):
     if difficulty == 1:
