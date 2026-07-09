@@ -60,8 +60,8 @@ DEFAULT_CUSTOMIZATIONS = {
             "autohide": None
         },
         "data_4": {
-            "text": "",
-            "autohide": None
+            "text": "Mods: ${formatted_mods}",
+            "autohide": "formatted_mods"
         },
         "data_5": {
             "text": "",
