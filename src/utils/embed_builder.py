@@ -17,7 +17,7 @@ def build_embed(data, leaderboard, channel_data):
     lb_customizations = parsed_customizations[leaderboard]
 
     embed = nextcord.Embed(
-        title=lb_customizations["score_text"],
+        title=lb_customizations["score_text"]["text"],
         description=lb_customizations["main_line"]["text"],
         color=data["color"],
         url=f"https://beatsaver.com/maps/{data['beatsaver_id']}"
