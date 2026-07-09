@@ -224,6 +224,7 @@ async def customize_element(
             }
         ),
         text: str = "",
+        autohide: str = None,
         channel: nextcord.TextChannel = None,
 ):
     guild_id = str(interaction.guild.id)
@@ -252,7 +253,8 @@ async def customize_element(
 
     for lb in leaderboards:
         lb_elements = customized_elements.setdefault(lb, {})
-        lb_elements[element] = text
+        lb_elements[element]["text"] = text
+        lb_elements[element]["autohide"] = autohide
 
     data_manager.save_guild_data()
 
