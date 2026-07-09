@@ -26,7 +26,7 @@ DEFAULT_CUSTOMIZATIONS = {
             "autohide": None
         },
         "data_4": {
-            "text": "Mods: ${formatted_mods}",
+            "text": "${formatted_mods}",
             "autohide": "formatted_mods"
         },
         "data_5": {
@@ -60,7 +60,7 @@ DEFAULT_CUSTOMIZATIONS = {
             "autohide": None
         },
         "data_4": {
-            "text": "Mods: ${formatted_mods}",
+            "text": "${formatted_mods}",
             "autohide": "formatted_mods"
         },
         "data_5": {
@@ -94,7 +94,7 @@ DEFAULT_CUSTOMIZATIONS = {
             "autohide": None
         },
         "data_4": {
-            "text": "Mods: ${formatted_mods}",
+            "text": "${formatted_mods}",
             "autohide": "formatted_mods"
         },
         "data_5": {
@@ -128,7 +128,7 @@ DEFAULT_CUSTOMIZATIONS = {
             "autohide": None
         },
         "data_4": {
-            "text": "Mods: ${formatted_mods}",
+            "text": "${formatted_mods}",
             "autohide": "formatted_mods"
         },
         "data_5": {
