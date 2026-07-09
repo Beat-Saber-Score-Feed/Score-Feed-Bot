@@ -72,20 +72,7 @@ def parse_score(score_data):
         "acc_difficulty_name": accsaber.convert_difficulty(bl_converted_data["difficulty_number"]),
     }
 
-    ranked_leaderboards = []
-
-    if bl_converted_data["bl_stars"] > 0:
-        ranked_leaderboards.append("bl")
-
-    if ss_converted_data["ss_stars"] > 0:
-        ranked_leaderboards.append("ss")
-
-    if acc_converted_data["acc_stars"] > 0:
-        ranked_leaderboards.append("acc")
-
-    other_data = {
-        "ranked_leaderboards": ranked_leaderboards or ["unr"],
-    }
+    other_data = {}
 
     if bl_converted_data["rank"] == 1:
         other_data["color"] = nextcord.Color.red()

@@ -63,9 +63,17 @@ async def listener():
 
                                     all_leaderboard_settings = channel_data.get("leaderboard_settings", {})
 
-                                    for leaderboard in parsed_data["ranked_leaderboards"]:
-                                        leaderboard_settings = all_leaderboard_settings.get(leaderboard, {})
+                                    leaderboards = [
+                                        "ss",
+                                        "bl",
+                                        "acc",
+                                        "unr"
+                                    ]
 
+                                    valid_leaderboards = []
+
+                                    for leaderboard in leaderboards:
+                                        leaderboard_settings = all_leaderboard_settings.get(leaderboard, {})
                                         if not leaderboard_settings.get("enabled", True):
                                             continue
 
@@ -75,6 +83,14 @@ async def listener():
                                         if parsed_data.get("rank") > leaderboard_settings.get("rank_threshold",math.inf):
                                             continue
 
+                                        valid_leaderboards.append(leaderboard)
+
+                                    if not valid_leaderboards:
+                                        unranked_settings = all_leaderboard_settings.get("unr", {})
+                                        if unranked_settings.get("enabled", True):
+                                            valid_leaderboards.append("unr")
+
+                                    for leaderboard in valid_leaderboards:
                                         embed = embed_builder.build_embed(parsed_data, leaderboard, channel_data)
                                         view = embed_builder.build_view(parsed_data, leaderboard)
                                         send_tasks.append(channel.send(embed=embed, view=view))
