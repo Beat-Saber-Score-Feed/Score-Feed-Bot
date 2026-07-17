@@ -70,38 +70,59 @@ async def listener():
                                     ]
 
                                     valid_leaderboards = []
+                                    if channel_data.get("mode", "multi") == "multi":
+                                        for leaderboard in leaderboards:
+                                            leaderboard_settings = all_leaderboard_settings.get(leaderboard, {})
 
-                                    for leaderboard in leaderboards:
-                                        leaderboard_settings = all_leaderboard_settings.get(leaderboard, {})
+                                            if parsed_data.get(f"{leaderboard}_pp", 0) < leaderboard_settings.get("pp_threshold", 0.001):
+                                                continue
 
-                                        if parsed_data.get(f"{leaderboard}_pp", 0) < leaderboard_settings.get("pp_threshold", 0.001):
-                                            continue
+                                            if parsed_data.get("rank") > leaderboard_settings.get("rank_threshold",math.inf):
+                                                continue
 
-                                        if parsed_data.get("rank") > leaderboard_settings.get("rank_threshold",math.inf):
-                                            continue
+                                            if not leaderboard_settings.get("enabled", True):
+                                                unranked_settings = all_leaderboard_settings.get("unr", {})
+                                                if parsed_data.get("unr_pp", 0) < unranked_settings.get("pp_threshold", 0.001):
+                                                    continue
 
-                                        if not leaderboard_settings.get("enabled", True):
+                                                if parsed_data.get("rank") > unranked_settings.get("rank_threshold",math.inf):
+                                                    continue
+                                                if unranked_settings.get("enabled", True) and "unr" not in valid_leaderboards:
+                                                    valid_leaderboards.append("unr")
+                                                continue
+
+                                            valid_leaderboards.append(leaderboard)
+
+                                        if not valid_leaderboards:
                                             unranked_settings = all_leaderboard_settings.get("unr", {})
                                             if parsed_data.get("unr_pp", 0) < unranked_settings.get("pp_threshold", 0.001):
                                                 continue
 
-                                            if parsed_data.get("rank") > unranked_settings.get("rank_threshold",math.inf):
+                                            if parsed_data.get("rank") > unranked_settings.get("rank_threshold", math.inf):
                                                 continue
                                             if unranked_settings.get("enabled", True) and "unr" not in valid_leaderboards:
                                                 valid_leaderboards.append("unr")
-                                            continue
+                                    else:
+                                        for leaderboard in leaderboards:
+                                            leaderboard_settings = all_leaderboard_settings.get(leaderboard, {})
 
-                                        valid_leaderboards.append(leaderboard)
+                                            if parsed_data.get(f"{leaderboard}_pp", 0) < leaderboard_settings.get("pp_threshold", 0.001):
+                                                continue
 
-                                    if not valid_leaderboards:
-                                        unranked_settings = all_leaderboard_settings.get("unr", {})
-                                        if parsed_data.get("unr_pp", 0) < unranked_settings.get("pp_threshold", 0.001):
-                                            continue
+                                            if parsed_data.get("rank") > leaderboard_settings.get("rank_threshold",math.inf):
+                                                continue
 
-                                        if parsed_data.get("rank") > unranked_settings.get("rank_threshold", math.inf):
-                                            continue
-                                        if unranked_settings.get("enabled", True) and "unr" not in valid_leaderboards:
                                             valid_leaderboards.append("unr")
+
+                                        if not valid_leaderboards:
+                                            unranked_settings = all_leaderboard_settings.get("unr", {})
+                                            if parsed_data.get("unr_pp", 0) < unranked_settings.get("pp_threshold",0.001):
+                                                continue
+
+                                            if parsed_data.get("rank") > unranked_settings.get("rank_threshold",math.inf):
+                                                continue
+                                            if unranked_settings.get("enabled",True) and "unr" not in valid_leaderboards:
+                                                valid_leaderboards.append("unr")
 
                                     for leaderboard in valid_leaderboards:
                                         embed = embed_builder.build_embed(parsed_data, leaderboard, channel_data)
