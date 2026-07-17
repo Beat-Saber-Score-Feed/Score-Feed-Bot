@@ -200,6 +200,35 @@ async def disable_channel(
 
     return await interaction.response.send_message("Score Feed is now disabled in this channel.", ephemeral=True)
 
+@bot.slash_command(name="set_channel_mode")
+async def set_channel_mode(
+        interaction: nextcord.Interaction,
+        mode: str = nextcord.SlashOption(
+            choices={
+                "Multi": "multi",
+                "Single": "single",
+            }
+        ),
+        channel: nextcord.TextChannel = None,
+):
+    guild_id = str(interaction.guild.id)
+    channel_id = str((channel or interaction.channel).id)
+
+    if not check_perms(interaction.user, guild_id):
+        return await interaction.response.send_message("You are not allowed to use this command!", ephemeral=True)
+
+    guild_data = data_manager.get_guild_data()
+
+    current_guild_data = guild_data["guilds"].setdefault(guild_id, {})
+    channels = current_guild_data.setdefault("channels", {})
+    channel_data = channels.setdefault(channel_id, {})
+
+    channel_data["mode"] = mode
+
+    data_manager.save_guild_data()
+
+    return await interaction.response.send_message("Set channel mode successfully!", ephemeral=True)
+
 @bot.slash_command(name="enable_customizations")
 async def enable_customizations(
         interaction: nextcord.Interaction,
