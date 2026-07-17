@@ -106,8 +106,13 @@ async def listener():
                                             if parsed_data.get("rank") > leaderboard_settings.get("rank_threshold",math.inf):
                                                 continue
 
-                                            if "unr" not in valid_leaderboards:
-                                                valid_leaderboards.append("unr")
+                                            if not leaderboard_settings.get("enabled", True):
+                                                unranked_settings = all_leaderboard_settings.get("unr", {})
+                                                if parsed_data.get("rank") > unranked_settings.get("rank_threshold",math.inf):
+                                                    continue
+                                                if unranked_settings.get("enabled", True) and "unr" not in valid_leaderboards:
+                                                    valid_leaderboards.append("unr")
+                                                continue
 
                                         if not valid_leaderboards:
                                             unranked_settings = all_leaderboard_settings.get("unr", {})
