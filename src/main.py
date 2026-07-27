@@ -46,7 +46,7 @@ async def listener():
 
                                     channel_data = current_guild_data["channels"][channel_id]
 
-                                    if not channel_data["enabled"]:
+                                    if not channel_data.get("enabled", False):
                                         continue
 
                                     filter_lists = channel_data.get("filter_lists", {})
