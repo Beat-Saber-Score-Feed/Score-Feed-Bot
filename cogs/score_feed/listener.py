@@ -9,6 +9,7 @@ from nextcord.ext import commands, tasks
 class Listener(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.listener.start()
 
     @tasks.loop(seconds=0)
     async def listener(self):
