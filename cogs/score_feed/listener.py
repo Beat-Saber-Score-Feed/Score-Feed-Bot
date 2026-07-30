@@ -6,7 +6,7 @@ import asyncio
 from src.utils import logger, score_parser, data_manager, embed_builder
 from nextcord.ext import commands, tasks
 
-class Listener(commands.cog):
+class Listener(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
