@@ -50,8 +50,8 @@ def parse_score(score_data):
     bl_acc_stars = bl_difficulty.get("accRating", 0)
     bl_tech_stars = bl_difficulty.get("techRating", 0)
     bl_converted_data = {
-        "bl_stars": bl_difficulty.get("stars") or 0,
-        "bl_pp": beatleader.calculate_pp(bl_acc_stars, bl_pass_stars, bl_tech_stars, ss_resp["score"]["accuracy"] * 100) or 0,
+        "bl_stars": round(bl_difficulty.get("stars") or 0, 2),
+        "bl_pp": round(beatleader.calculate_pp(bl_acc_stars, bl_pass_stars, bl_tech_stars, ss_resp["score"]["accuracy"] * 100) or 0, 2),
         "bl_map_id": bl_map_data.get("id"),
     }
 
