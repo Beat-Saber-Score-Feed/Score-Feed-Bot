@@ -16,12 +16,12 @@ class Listener(commands.Cog):
         logger.log("Connecting to the BeatLeader WSS...")
         while True:
             try:
-                async with websockets.connect("wss://api.beatleader.com/scores") as websocket:
-                    logger.log("Connected to the BeatLeader WSS")
+                async with websockets.connect("wss://scoresaber.com/ws/scorefeed") as websocket:
+                    logger.log("Connected to the ScoreSaber WSS")
                     async for score in websocket:
                         try:
                             score = json.loads(score)
-                            parsed_data = score_parser.parse_score(score)
+                            parsed_data = score_parser.parse_score(score["commandData"])
 
                             if parsed_data:
                                 send_tasks = []
