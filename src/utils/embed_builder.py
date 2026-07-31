@@ -63,7 +63,7 @@ def build_view(data, leaderboard = None):
 
     view.add_item(nextcord.ui.Button(
         label="Watch Replay",
-        url=f"https://watch.scoresaber.com/?scoreId={data['score_id']}"
+        url=f"https://watch.scoresaber.com/?scoreId={data['score_id']}&autoPlay=true"
     ))
 
     return view
