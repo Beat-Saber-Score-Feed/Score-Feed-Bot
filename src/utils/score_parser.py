@@ -33,6 +33,8 @@ def parse_score(score_data):
         "max_combo": ss_resp["score"]["maxCombo"],
         "ss_pp": round(ss_resp["score"]["pp"], 2),
         "ss_stars": round(ss_resp["leaderboard"]["realm"]["stars"], 2),
+        "ss_map_id": ss_resp["leaderboard"]["map"]["id"],
+        "ss_difficulty_id": ss_resp["leaderboard"]["difficulty"]["id"],
     }
 
     bl_resp = requests.get(f"https://api.beatleader.com/leaderboard/{ss_converted_data["hash"]}/{ss_converted_data["difficulty_name"]}/{ss_converted_data["mode"]}")
