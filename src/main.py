@@ -13,11 +13,11 @@ bot = commands.Bot(command_prefix="!", intents=nextcord.Intents.all())
 bot_instance = bot
 
 EXTENSIONS = [
-    "cogs.score_feed.listener",
-    "cogs.score_feed.server_commands",
-    "cogs.score_feed.channel_commands.customizations",
-    "cogs.score_feed.channel_commands.filter_lists",
-    "cogs.score_feed.channel_commands.settings",
+    "src.cogs.score_feed.listener",
+    "src.cogs.score_feed.server_commands",
+    "src.cogs.score_feed.channel_commands.customizations",
+    "src.cogs.score_feed.channel_commands.filter_lists",
+    "src.cogs.score_feed.channel_commands.settings",
 ]
 
 EXTENSIONS_LOADED = False
