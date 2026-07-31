@@ -70,7 +70,7 @@ def parse_score(score_data):
     acc_converted_data = {
         "acc_stars": acc_stars,
         "acc_pp": accsaber.calculate_ap(acc_stars, ss_resp["score"]["accuracy"] * 100),
-        "acc_difficulty_name": accsaber.convert_difficulty(bl_converted_data["difficulty_number"]),
+        "acc_difficulty_name": accsaber.convert_difficulty(ss_converted_data["difficulty_number"]),
     }
 
     other_data = {}
