@@ -23,12 +23,12 @@ def build_embed(data, leaderboard, channel_data):
         url=f"https://beatsaver.com/maps/{data['beatsaver_id']}"
     )
 
-    if leaderboard == "ss":
-        profile_link = f"https://scoresaber.com/u/{data['player_id']}"
+    if leaderboard == "bl":
+        profile_link = f"https://beatleader.com/u/{data['player_id']}"
     elif leaderboard == "acc":
         profile_link = f"https://accsaberreloaded.com/players/{data['player_id']}"
     else:
-        profile_link = f"https://beatleader.com/u/{data['player_id']}"
+        profile_link = f"https://scoresaber.com/u/{data['player_id']}"
 
     embed.set_thumbnail(url=data['cover_image'])
     embed.set_author(
@@ -46,15 +46,15 @@ def build_embed(data, leaderboard, channel_data):
 def build_view(data, leaderboard = None):
     view = nextcord.ui.View()
 
-    if leaderboard == "ss":
-        text = "View on ScoreSaber"
-        leaderboard_link = f"https://scoresaber.com/map/{data['ss_map_id']}/difficulty/{data['ss_difficulty_id']}"
+    if leaderboard == "bl":
+        text = "View Map on BeatLeader"
+        leaderboard_link = f"https://beatleader.com/leaderboard/{data['bl_map_id']}"
     elif leaderboard == "acc":
-        text = "View on AccSaber Reloaded"
+        text = "View Map on AccSaber Reloaded"
         leaderboard_link = f"https://accsaberreloaded.com/maps/{data['beatsaver_id']}?difficulty={data['acc_difficulty_name'].lower()}"
     else:
-        text = "View on BeatLeader"
-        leaderboard_link = f"https://beatleader.com/leaderboard/global/{data['leaderboard_id']}"
+        text = "View Map on ScoreSaber"
+        leaderboard_link = f"https://scoresaber.com/map/{data['ss_map_id']}/difficulty/{data['ss_difficulty_id']}"
 
     view.add_item(nextcord.ui.Button(
         label=text,
@@ -63,7 +63,7 @@ def build_view(data, leaderboard = None):
 
     view.add_item(nextcord.ui.Button(
         label="Watch Replay",
-        url=f"https://allpoland.github.io/ArcViewer/?scoreID={data['score_id']}&autoPlay=true"
+        url=f"https://watch.scoresaber.com/?scoreId={data['score_id']}&autoPlay=true"
     ))
 
     return view

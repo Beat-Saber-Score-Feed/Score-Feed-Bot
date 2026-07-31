@@ -2,58 +2,60 @@ import json
 
 import requests
 import nextcord
-from src.utils import accsaber, scoresaber
+from src.utils import accsaber, scoresaber, beatleader
 
 
 def parse_score(score_data):
-    bl_converted_data = {
-        "name": score_data["player"]["name"],
-        "pfp": score_data["player"]["avatar"],
-        "player_id": score_data["player"]["id"],
-        "leaderboard_id": score_data["leaderboard"]["id"],
-        "beatsaver_id": score_data["leaderboard"]["song"]["id"].rstrip("x"),
-        "difficulty_id": score_data["leaderboard"]["difficulty"]["id"],
-        "hash": score_data["leaderboard"]["song"]["hash"],
-        "score_id": score_data["id"],
-        "modifiers": score_data["modifiers"],
-        "mode": score_data["leaderboard"]["difficulty"]["modeName"],
-        "extended_mode": f"Solo{score_data["leaderboard"]["difficulty"]["modeName"]}",
-        "difficulty_number": score_data["leaderboard"]["difficulty"]["value"],
-        "difficulty_name": score_data["leaderboard"]["difficulty"]["difficultyName"],
-        "extended_difficulty_name": f"{score_data["leaderboard"]["difficulty"]["modeName"]} {score_data["leaderboard"]["difficulty"]["difficultyName"]}",
-        "song_name": score_data["leaderboard"]["song"]["name"],
-        "song_sub_name": score_data["leaderboard"]["song"]["subName"],
-        "cover_image": score_data["leaderboard"]["song"]["coverImage"],
-        "acc": round(score_data["accuracy"] * 100, 2),
-        "mistakes": score_data["missedNotes"] + score_data["badCuts"] + score_data["bombCuts"],
-        "rank": score_data["rank"],
-        "max_combo": score_data["maxCombo"],
-        "bl_pp": round(score_data["pp"], 2),
-        "bl_stars": round(score_data["leaderboard"]["difficulty"].get("stars") or 0, 2),
-        "mods": score_data["modifiers"],
-        "formatted_mods": score_data["modifiers"].replace(",", ", ")
+    ss_score_id = score_data["score"]["id"]
+    ss_resp = requests.get(f"https://scoresaber.com/api/v2/scores/{ss_score_id}").json()
+
+    ss_converted_data = {
+        "score_id": ss_score_id,
+        "name": ss_resp["score"]["player"]["name"],
+        "pfp": ss_resp["score"]["player"]["avatar"],
+        "player_id": ss_resp["score"]["player"]["id"],
+        "leaderboard_id": ss_resp["leaderboard"]["id"],
+        "beatsaver_id": ss_resp["leaderboard"]["map"]["bsid"],
+        "difficulty_id": ss_resp["leaderboard"]["difficulty"]["id"],
+        "hash": ss_resp["leaderboard"]["map"]["hash"],
+        "modifiers": ss_resp["score"]["mods"],
+        "mode": ss_resp["leaderboard"]["difficulty"]["gameMode"][4:],
+        "extended_mode": ss_resp["leaderboard"]["difficulty"]["gameMode"],
+        "difficulty_number": ss_resp["leaderboard"]["difficulty"]["difficulty"],
+        "difficulty_name": scoresaber.convert_difficulty(ss_resp["leaderboard"]["difficulty"]["difficulty"]),
+        "extended_difficulty_name": f"{ss_resp["leaderboard"]["difficulty"]["gameMode"][4:]} {scoresaber.convert_difficulty(score_data["leaderboard"]["difficulty"]["difficulty"])}",
+        "song_name": ss_resp["leaderboard"]["map"]["songName"],
+        "song_sub_name": ss_resp["leaderboard"]["map"]["songSubName"],
+        "cover_image": ss_resp["leaderboard"]["map"]["coverUrl"],
+        "acc": round(ss_resp["score"]["accuracy"] * 100, 2),
+        "mistakes": ss_resp["score"]["missedNotes"] + ss_resp["score"]["badCuts"],
+        "rank": ss_resp["score"]["rank"],
+        "max_combo": ss_resp["score"]["maxCombo"],
+        "ss_pp": round(ss_resp["score"]["pp"], 2),
+        "ss_stars": round(ss_resp["leaderboard"]["realm"]["stars"], 2),
+        "ss_map_id": ss_resp["leaderboard"]["map"]["id"],
+        "ss_difficulty_id": ss_resp["leaderboard"]["difficulty"]["id"],
     }
 
-    ss_resp = requests.get(f"https://scoresaber.com/api/v2/leaderboards/hash/{bl_converted_data['hash']}/{bl_converted_data['extended_mode']}/{bl_converted_data['difficulty_number']}",params={"realmId": "1"})
+    bl_resp = requests.get(f"https://api.beatleader.com/leaderboard/{ss_converted_data["hash"]}/{ss_converted_data["difficulty_name"]}/{ss_converted_data["mode"]}")
 
     try:
-        ss_map_data = ss_resp.json()
+        bl_map_data = bl_resp.json()
     except json.decoder.JSONDecodeError:
-        ss_map_data = {}
+        bl_map_data = {}
 
-    ss_map = ss_map_data.get("map", {})
-    realm = ss_map_data.get("realm", {})
-    ss_difficulty = ss_map_data.get("difficulty", {})
+    bl_difficulty = bl_map_data.get("difficulty", {})
 
-    ss_stars = realm.get("stars", 0)
-    ss_converted_data = {
-        "ss_stars": ss_stars,
-        "ss_pp": scoresaber.calculate_pp(bl_converted_data["acc"], ss_stars),
-        "ss_map_id": ss_map.get("id"),
-        "ss_difficulty_id": ss_difficulty.get("id"),
+    bl_pass_stars = bl_difficulty.get("passRating", 0)
+    bl_acc_stars = bl_difficulty.get("accRating", 0)
+    bl_tech_stars = bl_difficulty.get("techRating", 0)
+    bl_converted_data = {
+        "bl_stars": bl_difficulty.get("stars") or 0,
+        "bl_pp": beatleader.calculate_pp(bl_acc_stars, bl_pass_stars, bl_tech_stars, ss_resp["score"]["accuracy"] * 100) or 0,
+        "bl_map_id": bl_map_data.get("id"),
     }
 
-    accsaber_resp = requests.get(f"https://api.accsaberreloaded.com/v1/maps/hash/{bl_converted_data['hash']}?difficulty={accsaber.convert_difficulty(bl_converted_data['difficulty_number'])}")
+    accsaber_resp = requests.get(f"https://api.accsaberreloaded.com/v1/maps/hash/{ss_converted_data['hash']}?difficulty={accsaber.convert_difficulty(ss_converted_data['difficulty_number'])}")
     try:
         accsaber_map_data = accsaber_resp.json()
     except json.decoder.JSONDecodeError:
@@ -69,24 +71,21 @@ def parse_score(score_data):
     acc_stars = acc_difficulty.get("complexity", 0)
     acc_converted_data = {
         "acc_stars": acc_stars,
-        "acc_pp": accsaber.calculate_ap(acc_stars, bl_converted_data["acc"]),
-        "acc_difficulty_name": accsaber.convert_difficulty(bl_converted_data["difficulty_number"]),
+        "acc_pp": accsaber.calculate_ap(acc_stars, ss_resp["score"]["accuracy"] * 100),
+        "acc_difficulty_name": accsaber.convert_difficulty(ss_converted_data["difficulty_number"]),
     }
 
     other_data = {}
 
-    if bl_converted_data["bl_pp"] > 0 or ss_converted_data["ss_pp"] > 0 or acc_converted_data["acc_pp"] > 0:
-        other_data["unr_pp"] = 1
-
-    if bl_converted_data["rank"] == 1:
+    if ss_converted_data["rank"] == 1:
         other_data["color"] = nextcord.Color.red()
-    elif bl_converted_data["rank"] <= 10:
+    elif ss_converted_data["rank"] <= 10:
         other_data["color"] = nextcord.Color.dark_purple()
-    elif bl_converted_data["rank"] <= 25:
+    elif ss_converted_data["rank"] <= 25:
         other_data["color"] = nextcord.Color.green()
-    elif bl_converted_data["rank"] <= 50:
+    elif ss_converted_data["rank"] <= 50:
         other_data["color"] = nextcord.Color.yellow()
     else:
         other_data["color"] = nextcord.Color.light_gray()
 
-    return {**bl_converted_data, **ss_converted_data, **acc_converted_data, **other_data}
+    return {**ss_converted_data, **bl_converted_data, **acc_converted_data, **other_data}
