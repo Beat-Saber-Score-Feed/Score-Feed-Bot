@@ -49,7 +49,7 @@ def parse_score(score_data):
     bl_tech_stars = bl_difficulty.get("techRating", 0)
     bl_converted_data = {
         "bl_stars": bl_difficulty.get("stars") or 0,
-        "bl_pp": beatleader.calculate_pp(bl_acc_stars, bl_pass_stars, bl_tech_stars, ss_resp["score"]["accuracy"]) or 0,
+        "bl_pp": beatleader.calculate_pp(bl_acc_stars, bl_pass_stars, bl_tech_stars, ss_resp["score"]["accuracy"] * 100) or 0,
         "bl_map_id": bl_map_data.get("id"),
     }
 
@@ -69,7 +69,7 @@ def parse_score(score_data):
     acc_stars = acc_difficulty.get("complexity", 0)
     acc_converted_data = {
         "acc_stars": acc_stars,
-        "acc_pp": accsaber.calculate_ap(acc_stars, bl_converted_data["acc"]),
+        "acc_pp": accsaber.calculate_ap(acc_stars, ss_resp["score"]["accuracy"] * 100),
         "acc_difficulty_name": accsaber.convert_difficulty(bl_converted_data["difficulty_number"]),
     }
 
