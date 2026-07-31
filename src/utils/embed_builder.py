@@ -48,13 +48,13 @@ def build_view(data, leaderboard = None):
 
     if leaderboard == "bl":
         text = "View Map on BeatLeader"
-        leaderboard_link = f"https://scoresaber.com/map/{data['bl_map_id']}/difficulty/{data['ss_difficulty_id']}"
+        leaderboard_link = f"https://beatleader.com/map/{data['bl_map_id']}/difficulty/{data['ss_difficulty_id']}"
     elif leaderboard == "acc":
         text = "View Map on AccSaber Reloaded"
         leaderboard_link = f"https://accsaberreloaded.com/maps/{data['beatsaver_id']}?difficulty={data['acc_difficulty_name'].lower()}"
     else:
         text = "View Map on ScoreSaber"
-        leaderboard_link = f"https://beatleader.com/leaderboard/global/{data['leaderboard_id']}"
+        leaderboard_link = f"https://scoresaber.com/leaderboard/global/{data['leaderboard_id']}"
 
     view.add_item(nextcord.ui.Button(
         label=text,
